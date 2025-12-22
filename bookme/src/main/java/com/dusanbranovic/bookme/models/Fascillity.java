@@ -5,27 +5,29 @@ import jakarta.persistence.*;
 import java.util.List;
 
 @Entity
-public class PropertyType {
+public class Fascillity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "type_id")
     private Long id;
 
     private String name;
 
-    @OneToMany(mappedBy = "propertyType")
-    private List<Property> properties;
+    @OneToMany(mappedBy = "facility")
+    private List<PropertyFacility> propertyFacilities;
 
-    public PropertyType() {
+    public Fascillity() {
     }
 
-    public PropertyType(String name) {
+    public Fascillity(String name) {
         this.name = name;
     }
 
-    public PropertyType(Long id, String name) {
-        this.id = id;
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
         this.name = name;
     }
 
@@ -35,13 +37,5 @@ public class PropertyType {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 }

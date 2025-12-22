@@ -1,10 +1,8 @@
 package com.dusanbranovic.bookme.models;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Entity
 @Table(name = "app_user")
@@ -23,10 +21,29 @@ public class User {
     private String password;
     private String phoneNumber;
 
+    @OneToMany(mappedBy = "owner")
+    private List<Property> properties;
+
+    @OneToMany(mappedBy = "reviewer")
+    private List<Review> reviews;
+
+    @OneToMany(mappedBy = "guest")
+    private List<Booking> bookings;
+
+    @OneToMany(mappedBy = "contactPerson")
+    private List<ContactPerson> contacts;
+
     public User() {
     }
 
-    public User(UserType userType, String email, String firstName, String lastName, String password, String phoneNumber) {
+    public User(
+            UserType userType,
+                String email,
+                String firstName,
+                String lastName,
+                String password,
+                String phoneNumber
+    ) {
         this.userType = userType;
         this.email = email;
         this.firstName = firstName;
@@ -89,5 +106,21 @@ public class User {
 
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
+    }
+
+    public List<Property> getProperties() {
+        return properties;
+    }
+
+    public void setProperties(List<Property> properties) {
+        this.properties = properties;
+    }
+
+    public List<Review> getReviews() {
+        return reviews;
+    }
+
+    public void setReviews(List<Review> reviews) {
+        this.reviews = reviews;
     }
 }
