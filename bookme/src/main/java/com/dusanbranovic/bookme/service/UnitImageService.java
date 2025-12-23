@@ -1,6 +1,5 @@
 package com.dusanbranovic.bookme.service;
 
-import com.dusanbranovic.bookme.repository.UnitFascilityRepository;
 import com.dusanbranovic.bookme.repository.UnitImageRepository;
 import org.springframework.stereotype.Service;
 
