@@ -27,13 +27,13 @@ public class PropertyImage {
     public PropertyImage() {
     }
 
-    public PropertyImage(Property property, String contentType, Integer sortOrder, Boolean isPrimary, String url, String s3Key) {
-        this.property = property;
-        this.contentType = contentType;
-        this.sortOrder = sortOrder;
-        this.isPrimary = isPrimary;
-        this.url = url;
+    public PropertyImage(String s3Key, String url, Boolean isPrimary, Integer sortOrder, String contentType, Property property) {
         this.s3Key = s3Key;
+        this.url = url;
+        this.isPrimary = isPrimary;
+        this.sortOrder = sortOrder;
+        this.contentType = contentType;
+        this.property = property;
     }
 
     public Long getId() {

@@ -21,12 +21,12 @@ public class UnitImage {
     public UnitImage() {
     }
 
-    public UnitImage(BookableUnit bookableUnit, Integer sortOrder, Boolean isPrimary, String url, String s3Key) {
-        this.bookableUnit = bookableUnit;
-        this.sortOrder = sortOrder;
-        this.isPrimary = isPrimary;
-        this.url = url;
+    public UnitImage(String s3Key, String url, Boolean isPrimary, Integer sortOrder, BookableUnit bookableUnit) {
         this.s3Key = s3Key;
+        this.url = url;
+        this.isPrimary = isPrimary;
+        this.sortOrder = sortOrder;
+        this.bookableUnit = bookableUnit;
     }
 
     public Long getId() {

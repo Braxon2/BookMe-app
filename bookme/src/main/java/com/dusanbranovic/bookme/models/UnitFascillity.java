@@ -19,9 +19,8 @@ public class UnitFascillity {
     public UnitFascillity() {
     }
 
-    public UnitFascillity(String name, List<UnitFascilityMapping> unitFascilityMappings) {
+    public UnitFascillity(String name) {
         this.name = name;
-        this.unitFascilityMappings = unitFascilityMappings;
     }
 
 

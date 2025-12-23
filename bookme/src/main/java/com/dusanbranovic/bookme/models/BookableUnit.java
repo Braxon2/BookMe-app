@@ -43,8 +43,6 @@ public class BookableUnit {
 
     public BookableUnit(
             Property property,
-            List<PeriodPrice> periodPriceList,
-            List<Addon> addonList,
             int maxCapacity,
             double squareMeters,
             int totalUnits,
@@ -55,8 +53,6 @@ public class BookableUnit {
             String name
     ) {
         this.property = property;
-        this.periodPriceList = periodPriceList;
-        this.addonList = addonList;
         this.maxCapacity = maxCapacity;
         this.squareMeters = squareMeters;
         this.totalUnits = totalUnits;

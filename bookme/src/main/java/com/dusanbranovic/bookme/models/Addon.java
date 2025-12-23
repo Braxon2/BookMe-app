@@ -25,9 +25,8 @@ public class Addon {
     public Addon() {
     }
 
-    public Addon(BookableUnit bookableUnit, List<PeriodPriceAddon> periodPriceAddonList, String name, boolean perNight) {
+    public Addon(BookableUnit bookableUnit, String name, boolean perNight) {
         this.bookableUnit = bookableUnit;
-        this.periodPriceAddonList = periodPriceAddonList;
         this.name = name;
         this.perNight = perNight;
     }

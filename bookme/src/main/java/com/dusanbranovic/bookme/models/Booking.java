@@ -30,14 +30,22 @@ public class Booking {
     public Booking() {
     }
 
-    public Booking(BookingStatus status, LocalDateTime checkOut, LocalDateTime checkIn, LocalDate createdAt, Double totalPrice, User guest, BookableUnit bookableUnit) {
-        this.status = status;
-        this.checkOut = checkOut;
-        this.checkIn = checkIn;
-        this.createdAt = createdAt;
-        this.totalPrice = totalPrice;
-        this.guest = guest;
+    public Booking(
+            BookableUnit bookableUnit,
+                   User guest,
+                   Double totalPrice,
+                   LocalDate createdAt,
+                   LocalDateTime checkIn,
+                   LocalDateTime checkOut,
+                   BookingStatus status
+    ) {
         this.bookableUnit = bookableUnit;
+        this.guest = guest;
+        this.totalPrice = totalPrice;
+        this.createdAt = createdAt;
+        this.checkIn = checkIn;
+        this.checkOut = checkOut;
+        this.status = status;
     }
 
     public Long getId() {
