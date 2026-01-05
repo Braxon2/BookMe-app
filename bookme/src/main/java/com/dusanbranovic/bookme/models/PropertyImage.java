@@ -27,7 +27,14 @@ public class PropertyImage {
     public PropertyImage() {
     }
 
-    public PropertyImage(String s3Key, String url, Boolean isPrimary, Integer sortOrder, String contentType, Property property) {
+    public PropertyImage(
+            String s3Key,
+            String url,
+            Boolean isPrimary,
+            Integer sortOrder,
+            String contentType,
+            Property property
+    ) {
         this.s3Key = s3Key;
         this.url = url;
         this.isPrimary = isPrimary;

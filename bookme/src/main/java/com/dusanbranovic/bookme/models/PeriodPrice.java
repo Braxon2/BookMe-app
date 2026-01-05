@@ -25,7 +25,13 @@ public class PeriodPrice {
     public PeriodPrice() {
     }
 
-    public PeriodPrice(BookableUnit bookableUnit, double pricePerNight, LocalDate startDate, LocalDate endDate, String season) {
+    public PeriodPrice(
+            BookableUnit bookableUnit,
+            double pricePerNight,
+            LocalDate startDate,
+            LocalDate endDate,
+            String season
+    ) {
         this.bookableUnit = bookableUnit;
         this.pricePerNight = pricePerNight;
         this.startDate = startDate;

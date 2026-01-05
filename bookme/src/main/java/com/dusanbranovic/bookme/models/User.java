@@ -52,6 +52,23 @@ public class User {
         this.phoneNumber = phoneNumber;
     }
 
+    public User(
+            Long id,
+            UserType userType,
+            String email,
+            String firstName,
+            String lastName,
+            String password,
+            String phoneNumber) {
+        this.id = id;
+        this.userType = userType;
+        this.email = email;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.password = password;
+        this.phoneNumber = phoneNumber;
+    }
+
     public Long getId() {
         return id;
     }

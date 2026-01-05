@@ -1,34 +1,38 @@
 package com.dusanbranovic.bookme.service;
 
 import com.dusanbranovic.bookme.dto.UserDTO;
+import com.dusanbranovic.bookme.mappers.UserMapper;
 import com.dusanbranovic.bookme.models.User;
 import com.dusanbranovic.bookme.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
+
 
 @Service
 public class UserService {
 
     private final UserRepository userRepository;
 
-    public UserService(UserRepository userRepository) {
+    private final UserMapper userMapper;
+
+    public UserService(UserRepository userRepository, UserMapper userMapper) {
         this.userRepository = userRepository;
+        this.userMapper = userMapper;
     }
 
-    public List<User> getUsers() {
-        return userRepository.findAll();
+    public List<UserDTO> getUsers() {
+        return userRepository.findAll().
+                stream().
+                map(userMapper::toDTO)
+                .collect(Collectors.toList());
     }
 
-    public User addUser(UserDTO dto) {
-        User user = new User();
-        user.setUserType(dto.userType());
-        user.setPhoneNumber(dto.phoneNumber());
-        user.setEmail(dto.email());
-        user.setPassword(dto.password());
-        user.setFirstName(dto.firstName());
-        user.setLastName(dto.lastName());
-
-        return userRepository.save(user);
-    }
+//    public User addUser(UserDTO dto) {
+//
+//        User user = userMapper.toUser(dto);
+//
+//        return userRepository.save(user);
+//    }
 }

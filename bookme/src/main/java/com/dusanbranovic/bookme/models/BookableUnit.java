@@ -28,6 +28,9 @@ public class BookableUnit {
     @OneToMany(mappedBy = "bookableUnit")
     private List<UnitFascilityMapping> unitFascilityMappings;
 
+    @OneToMany(mappedBy = "bookableUnit", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UnitImage> images;
+
     private int maxCapacity;
     private double squareMeters;
     private int totalUnits;
@@ -159,4 +162,27 @@ public class BookableUnit {
         this.name = name;
     }
 
+    public List<Booking> getBookings() {
+        return bookings;
+    }
+
+    public void setBookings(List<Booking> bookings) {
+        this.bookings = bookings;
+    }
+
+    public List<UnitFascilityMapping> getUnitFascilityMappings() {
+        return unitFascilityMappings;
+    }
+
+    public void setUnitFascilityMappings(List<UnitFascilityMapping> unitFascilityMappings) {
+        this.unitFascilityMappings = unitFascilityMappings;
+    }
+
+    public List<UnitImage> getImages() {
+        return images;
+    }
+
+    public void setImages(List<UnitImage> images) {
+        this.images = images;
+    }
 }

@@ -19,7 +19,7 @@ public class Property {
     @JoinColumn(name = "type_id")
     private PropertyType propertyType;
 
-    @OneToMany(mappedBy = "property")
+    @OneToMany(mappedBy = "property", cascade = CascadeType.ALL)
     private List<BookableUnit> units;
 
     @OneToMany(mappedBy = "property")
@@ -27,6 +27,9 @@ public class Property {
 
     @OneToMany(mappedBy = "property")
     private List<ContactPerson> contacts;
+
+    @OneToMany(mappedBy = "property", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PropertyImage> images;
 
     private String name;
     private String description;
@@ -48,6 +51,29 @@ public class Property {
                     String address,
                     String houseRules,
                     String importantInfo) {
+        this.owner = owner;
+        this.propertyType = propertyType;
+        this.name = name;
+        this.description = description;
+        this.country = country;
+        this.city = city;
+        this.address = address;
+        this.houseRules = houseRules;
+        this.importantInfo = importantInfo;
+    }
+
+    public Property(Long id,
+                    User owner,
+                    PropertyType propertyType,
+                    String name,
+                    String description,
+                    String country,
+                    String city,
+                    String address,
+                    String houseRules,
+                    String importantInfo
+    ) {
+        this.id = id;
         this.owner = owner;
         this.propertyType = propertyType;
         this.name = name;
@@ -137,5 +163,37 @@ public class Property {
 
     public void setImportantInfo(String importantInfo) {
         this.importantInfo = importantInfo;
+    }
+
+    public List<BookableUnit> getUnits() {
+        return units;
+    }
+
+    public void setUnits(List<BookableUnit> units) {
+        this.units = units;
+    }
+
+    public List<PropertyFacility> getPropertyFacilities() {
+        return propertyFacilities;
+    }
+
+    public void setPropertyFacilities(List<PropertyFacility> propertyFacilities) {
+        this.propertyFacilities = propertyFacilities;
+    }
+
+    public List<ContactPerson> getContacts() {
+        return contacts;
+    }
+
+    public void setContacts(List<ContactPerson> contacts) {
+        this.contacts = contacts;
+    }
+
+    public List<PropertyImage> getImages() {
+        return images;
+    }
+
+    public void setImages(List<PropertyImage> images) {
+        this.images = images;
     }
 }

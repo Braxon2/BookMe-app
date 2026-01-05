@@ -1,0 +1,57 @@
+package com.dusanbranovic.bookme.mappers;
+
+import com.dusanbranovic.bookme.dto.BookableUnitRequestDTO;
+import com.dusanbranovic.bookme.dto.BookableUnitsResponseDTO;
+import com.dusanbranovic.bookme.models.BookableUnit;
+import com.dusanbranovic.bookme.models.Property;
+import org.springframework.stereotype.Component;
+
+@Component
+public class BookableUnitMapper {
+
+    public BookableUnitsResponseDTO toDTO(BookableUnit unit){
+        return new BookableUnitsResponseDTO(
+                unit.getId(),
+                unit.getMaxCapacity(),
+                unit.getSquareMeters(),
+                unit.getTotalUnits(),
+                unit.getSingleBeds(),
+                unit.getDoubleBeds(),
+                unit.getMaxAdultCapacity(),
+                unit.getMaxKidsCapacity(),
+                unit.getName());
+    }
+
+    public BookableUnit toEntity(BookableUnitsResponseDTO dto){
+        BookableUnit unit = new BookableUnit();
+        unit.setId(dto.id());
+        unit.setName(dto.name());
+        unit.setTotalUnits(dto.totalUnits());
+        unit.setMaxCapacity(dto.maxCapacity());
+        unit.setMaxKidsCapacity(dto.maxKidsCapacity());
+        unit.setMaxAdultCapacity(dto.maxAdultCapacity());
+        unit.setDoubleBeds(dto.doubleBeds());
+        unit.setSingleBeds(dto.singleBeds());
+        unit.setSquareMeters(dto.squareMeters());
+
+        return unit;
+
+    }
+
+    public BookableUnit toEntity(BookableUnitRequestDTO dto, Property property){
+        BookableUnit unit = new BookableUnit();
+        unit.setProperty(property);
+        unit.setName(dto.name());
+        unit.setTotalUnits(dto.totalUnits());
+        unit.setMaxCapacity(dto.maxCapacity());
+        unit.setMaxKidsCapacity(dto.maxKidsCapacity());
+        unit.setMaxAdultCapacity(dto.maxAdultCapacity());
+        unit.setDoubleBeds(dto.doubleBeds());
+        unit.setSingleBeds(dto.singleBeds());
+        unit.setSquareMeters(dto.squareMeters());
+
+
+        return unit;
+
+    }
+}

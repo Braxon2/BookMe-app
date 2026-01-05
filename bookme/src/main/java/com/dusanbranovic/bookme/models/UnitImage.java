@@ -21,7 +21,13 @@ public class UnitImage {
     public UnitImage() {
     }
 
-    public UnitImage(String s3Key, String url, Boolean isPrimary, Integer sortOrder, BookableUnit bookableUnit) {
+    public UnitImage(
+            String s3Key,
+            String url,
+            Boolean isPrimary,
+            Integer sortOrder,
+            BookableUnit bookableUnit
+    ) {
         this.s3Key = s3Key;
         this.url = url;
         this.isPrimary = isPrimary;
