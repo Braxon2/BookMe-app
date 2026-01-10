@@ -1,19 +1,22 @@
 package com.dusanbranovic.bookme.models;
 
 import jakarta.persistence.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.Collection;
 import java.util.List;
 
 @Entity
 @Table(name = "app_user")
-public class User {
+public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Enumerated(EnumType.STRING)
-    private UserType userType;
+    private UserType role;
 
     private String email;
     private String firstName;
@@ -44,7 +47,7 @@ public class User {
                 String password,
                 String phoneNumber
     ) {
-        this.userType = userType;
+        this.role = userType;
         this.email = email;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -61,7 +64,7 @@ public class User {
             String password,
             String phoneNumber) {
         this.id = id;
-        this.userType = userType;
+        this.role = userType;
         this.email = email;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -77,12 +80,12 @@ public class User {
         this.id = id;
     }
 
-    public UserType getUserType() {
-        return userType;
+    public UserType getRole() {
+        return role;
     }
 
-    public void setUserType(UserType userType) {
-        this.userType = userType;
+    public void setRole(UserType userType) {
+        this.role = userType;
     }
 
     public String getEmail() {
@@ -109,8 +112,38 @@ public class User {
         this.lastName = lastName;
     }
 
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(role);
+    }
+
     public String getPassword() {
         return password;
+    }
+
+    @Override
+    public String getUsername() {
+        return email;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 
     public void setPassword(String password) {
@@ -139,5 +172,18 @@ public class User {
 
     public void setReviews(List<Review> reviews) {
         this.reviews = reviews;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", role=" + role +
+                ", email='" + email + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", password='" + password + '\'' +
+                ", phoneNumber='" + phoneNumber + '\'' +
+                '}';
     }
 }
