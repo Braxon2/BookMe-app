@@ -70,12 +70,11 @@ public class PropertyService {
             );
     }
 
-    public PropertyDTO addProperty(PropertyRequestDTO dto, Long uid) {
+    public PropertyDTO addProperty(PropertyRequestDTO dto, String email) {
 
-        Optional<User> optionalUser = userRepository.findById(uid);
-        if(!optionalUser.isPresent()){
-            return null;
-        }
+        User owner = userRepository.findByEmail(email).orElseThrow();
+
+
 
         Optional<PropertyType> optionalPropertyType = propertyTypeRepository.findById(dto.propertyTypeDTO().id());
         if(!optionalPropertyType.isPresent()){
@@ -83,7 +82,7 @@ public class PropertyService {
         }
 
         Property property = new Property();
-        property.setOwner(optionalUser.get());
+        property.setOwner(owner);
         property.setPropertyType(optionalPropertyType.get());
         property.setName(dto.name());
         property.setDescription(dto.description());
@@ -92,7 +91,7 @@ public class PropertyService {
         property.setAddress(dto.address());
         property.setHouseRules(dto.houseRules());
         property.setImportantInfo(dto.importantInfo());
-
+        System.out.println(property);
         return propertyMapper.toDTO(propertyRepository.save(property));
     }
 

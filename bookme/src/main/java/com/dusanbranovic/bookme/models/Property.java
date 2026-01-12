@@ -196,4 +196,20 @@ public class Property {
     public void setImages(List<PropertyImage> images) {
         this.images = images;
     }
+
+    @Override
+    public String toString() {
+        return "Property{" +
+                "id=" + id +
+                ", owner=" + owner +
+                ", propertyType=" + propertyType +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", country='" + country + '\'' +
+                ", city='" + city + '\'' +
+                ", address='" + address + '\'' +
+                ", houseRules='" + houseRules + '\'' +
+                ", importantInfo='" + importantInfo + '\'' +
+                '}';
+    }
 }

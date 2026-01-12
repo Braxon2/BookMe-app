@@ -1,5 +1,6 @@
 package com.dusanbranovic.bookme.service;
 
+import com.dusanbranovic.bookme.dto.BookingRequestDTO;
 import com.dusanbranovic.bookme.dto.PeriodPriceRequestDTO;
 import com.dusanbranovic.bookme.dto.PeriodPriceResponseDTO;
 import com.dusanbranovic.bookme.exceptions.EntityNotFoundException;
@@ -11,6 +12,9 @@ import com.dusanbranovic.bookme.repository.BookableUnitRepository;
 import com.dusanbranovic.bookme.repository.PeriodPriceRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -68,6 +72,10 @@ public class BookableUnitService {
         }
 
         BookableUnit unit = optionalBookableUnit.get();
+
+
+
+
 
         return unit.getPeriodPriceList().
                 stream().

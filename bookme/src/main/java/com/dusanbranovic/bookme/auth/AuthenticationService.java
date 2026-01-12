@@ -31,7 +31,7 @@ public class AuthenticationService {
 
     public AuthResponse register(AuthRegisterRequest registerRequest) {
 
-        User user = new User(UserType.USER,
+        User user = new User(UserType.OWNER,
                 registerRequest.getEmail(),
                 registerRequest.getFirstName(),
                 registerRequest.getLastName(),

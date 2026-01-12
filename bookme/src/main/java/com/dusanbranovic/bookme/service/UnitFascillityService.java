@@ -1,8 +1,16 @@
 package com.dusanbranovic.bookme.service;
 
+import com.dusanbranovic.bookme.dto.FascilityResponseDTO;
+import com.dusanbranovic.bookme.dto.UnitFascilityRequestDTO;
+import com.dusanbranovic.bookme.dto.UnitFascilityResponseDTO;
+import com.dusanbranovic.bookme.exceptions.EntityAlreadyExistsExcpetion;
+import com.dusanbranovic.bookme.models.Fascillity;
+import com.dusanbranovic.bookme.models.UnitFascillity;
 import com.dusanbranovic.bookme.repository.ReviewRepository;
 import com.dusanbranovic.bookme.repository.UnitFascilityRepository;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 public class UnitFascillityService {
@@ -11,5 +19,17 @@ public class UnitFascillityService {
 
     public UnitFascillityService(UnitFascilityRepository unitFascilityRepository) {
         this.unitFascilityRepository = unitFascilityRepository;
+    }
+
+    public UnitFascilityResponseDTO addUnitFascility(UnitFascilityRequestDTO dto) {
+        Optional<UnitFascillity> optionalFascillity = unitFascilityRepository.findByName(dto.name());
+
+        if(optionalFascillity.isPresent()) throw new EntityAlreadyExistsExcpetion("Unit fascility already exists");
+
+        UnitFascillity unitFascillity = new UnitFascillity();
+        unitFascillity.setName(dto.name());
+
+        unitFascilityRepository.save(unitFascillity);
+        return new UnitFascilityResponseDTO(unitFascillity.getId(),unitFascillity.getName());
     }
 }

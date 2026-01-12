@@ -2,6 +2,7 @@ package com.dusanbranovic.bookme.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -27,7 +28,25 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http){
         return http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/auth/**").permitAll())
+                        .requestMatchers("/auth/**").permitAll()
+
+                        .requestMatchers(HttpMethod.GET, "/api/properties/**").hasAnyAuthority("ADMIN","OWNER","USER")
+
+                        .requestMatchers(HttpMethod.POST,"/api/properties").hasAnyAuthority("ADMIN","OWNER")
+
+                        .requestMatchers(HttpMethod.POST, "/api/properties/*/add-unit").hasAnyAuthority("ADMIN", "OWNER")
+
+                        .requestMatchers(HttpMethod.GET, "/api/units/**").hasAnyAuthority("ADMIN","OWNER","USER")
+                        .requestMatchers(HttpMethod.POST, "/api/units/*/add-price").hasAnyAuthority("ADMIN","OWNER")
+                        .requestMatchers(HttpMethod.POST, "/api/units/*/book").hasAnyAuthority("USER")
+                        .requestMatchers(HttpMethod.POST, "/api/fascilities").hasAnyAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/unit-fascilities").hasAnyAuthority("ADMIN")
+                )
+
+
+
+
+
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )

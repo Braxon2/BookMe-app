@@ -7,9 +7,11 @@ import com.dusanbranovic.bookme.dto.PropertyDTO;
 import com.dusanbranovic.bookme.dto.PropertyRequestDTO;
 import com.dusanbranovic.bookme.models.BookableUnit;
 import com.dusanbranovic.bookme.models.Property;
+import com.dusanbranovic.bookme.models.User;
 import com.dusanbranovic.bookme.service.PropertyService;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -25,6 +27,14 @@ public class PropertyController {
     @GetMapping
     public List<PropertyDTO> getAll(){
         return propertyService.getAll();
+    }
+
+    @PostMapping
+    public PropertyDTO addPorperty(
+            @RequestBody PropertyRequestDTO dto,
+            Principal principal
+    ){
+        return propertyService.addProperty(dto, principal.getName());
     }
 
     @GetMapping("/{pid}")
@@ -44,10 +54,5 @@ public class PropertyController {
     }
 
 
-
-//    @GetMapping("{pid}")
-//    public List<BookableUnit> getAllUnitsFromProperty(@PathVariable Long pid){
-//        return propertyService.getAllUnitsFromProperty(pid);
-//    }
 
 }

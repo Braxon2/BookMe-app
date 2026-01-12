@@ -1,14 +1,26 @@
 package com.dusanbranovic.bookme.service;
 
+import com.dusanbranovic.bookme.dto.BookableUnitsResponseDTO;
+import com.dusanbranovic.bookme.dto.BookingRequestDTO;
 import com.dusanbranovic.bookme.dto.BookingResponseDTO;
-import com.dusanbranovic.bookme.models.BookableUnit;
-import com.dusanbranovic.bookme.models.User;
+import com.dusanbranovic.bookme.dto.UserDTO;
+import com.dusanbranovic.bookme.exceptions.EntityNotFoundException;
+import com.dusanbranovic.bookme.exceptions.UnitAlreadyBookedException;
+import com.dusanbranovic.bookme.models.*;
 import com.dusanbranovic.bookme.repository.BookableUnitRepository;
 import com.dusanbranovic.bookme.repository.BookingRepository;
 import com.dusanbranovic.bookme.repository.UserRepository;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.Date;
+import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class BookingService {
@@ -23,20 +35,100 @@ public class BookingService {
         this.bookableUnitRepository = bookableUnitRepository;
     }
 
-    public BookingResponseDTO bookAUnit(Long userId, Long unitId) {
-        Optional<User> optionalUser = userRepository.findById(userId);
+    public BookingResponseDTO bookAUnit(Long unitId, BookingRequestDTO bookingRequestDTO) {
         Optional<BookableUnit> optionalBookableUnit = bookableUnitRepository.findById(unitId);
 
-        if(optionalUser.isEmpty() || optionalUser.isEmpty()) return null;
+        if(optionalBookableUnit.isEmpty()) {
+            throw new EntityNotFoundException("Unit with id " + unitId + " not found");
+        }
 
-        /*
-        1.Da li postoje user i unit
-        2. Da li je datum dobro izabran i validan
-        3. Da li ima ima mesta da se bukira?
-        4. 
+        BookableUnit unit = optionalBookableUnit.get();
 
-         */
+        LocalDate start = bookingRequestDTO.start_date();
+        LocalDate end = bookingRequestDTO.end_date();
 
-        return null;
+        if (!start.isBefore(end)) {
+            throw new IllegalArgumentException("Start date must be before end date");
+        }
+
+        LocalDateTime checkIn = start.atStartOfDay();
+        LocalDateTime checkOut = end.atStartOfDay();
+
+        List<Booking> overlaps =
+                bookingRepository.findOverlappingBookings(unitId, checkIn, checkOut);
+
+        if (!overlaps.isEmpty()) {
+            throw new UnitAlreadyBookedException("Unit is not available for selected dates");
+        }
+
+        List<PeriodPrice> prices = unit.getPeriodPriceList();
+
+        double totalPrice = 0.0;
+
+        for (LocalDate date = start; date.isBefore(end); date = date.plusDays(1)) {
+
+            LocalDate finalDate = date;
+            PeriodPrice priceForDay = prices.stream()
+                    .filter(p ->
+                            !finalDate.isBefore(p.getStartDate()) &&
+                                    !finalDate.isAfter(p.getEndDate())
+                    )
+                    .findFirst()
+                    .orElseThrow(() ->
+                            new IllegalStateException(
+                                    "No price defined for date " + finalDate));
+
+            totalPrice += priceForDay.getPricePerNight();
+        }
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User guest = (User) auth.getPrincipal();
+
+        Booking booking = new Booking(
+                unit,
+                guest,
+                totalPrice,
+                LocalDate.now(),
+                checkIn,
+                checkOut,
+                BookingStatus.CONFIRMED
+        );
+
+        bookingRepository.save(booking);
+
+
+        BookableUnitsResponseDTO unitDTO = new BookableUnitsResponseDTO(
+                unit.getId(),
+                unit.getMaxCapacity(),
+                unit.getSquareMeters(),
+                unit.getTotalUnits(),
+                unit.getSingleBeds(),
+                unit.getDoubleBeds(),
+                unit.getMaxAdultCapacity(),
+                unit.getMaxKidsCapacity(),
+                unit.getName()
+        );
+
+        UserDTO guestDTO = new UserDTO(
+                guest.getId(),
+                guest.getRole(),
+                guest.getEmail(),
+                guest.getFirstName(),
+                guest.getLastName(),
+                guest.getPhoneNumber()
+        );
+
+        return new BookingResponseDTO(
+                unitDTO,
+                guestDTO,
+                totalPrice,
+                LocalDate.now(),
+                checkIn,
+                checkOut,
+                BookingStatus.CONFIRMED
+        );
+
+
+
     }
 }
