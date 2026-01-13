@@ -1,4 +1,4 @@
-package com.dusanbranovic.bookme.dto;
+package com.dusanbranovic.bookme.dto.requests;
 
 import java.time.LocalDate;
 

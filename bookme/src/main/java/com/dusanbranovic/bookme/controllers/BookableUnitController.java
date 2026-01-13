@@ -1,10 +1,13 @@
 package com.dusanbranovic.bookme.controllers;
 
 
-import com.dusanbranovic.bookme.dto.BookingRequestDTO;
-import com.dusanbranovic.bookme.dto.BookingResponseDTO;
-import com.dusanbranovic.bookme.dto.PeriodPriceRequestDTO;
-import com.dusanbranovic.bookme.dto.PeriodPriceResponseDTO;
+import com.dusanbranovic.bookme.dto.requests.AddonRequestDTO;
+import com.dusanbranovic.bookme.dto.requests.BookingRequestDTO;
+import com.dusanbranovic.bookme.dto.responses.AddonResponseDTO;
+import com.dusanbranovic.bookme.dto.responses.BookingResponseDTO;
+import com.dusanbranovic.bookme.dto.requests.PeriodPriceRequestDTO;
+import com.dusanbranovic.bookme.dto.responses.PeriodPriceResponseDTO;
+import com.dusanbranovic.bookme.service.AddonService;
 import com.dusanbranovic.bookme.service.BookableUnitService;
 import com.dusanbranovic.bookme.service.BookingService;
 import org.springframework.web.bind.annotation.*;
@@ -16,11 +19,16 @@ import java.util.List;
 public class BookableUnitController {
 
     private final BookableUnitService bookableUnitService;
+    private final AddonService addonService;
 
     private final BookingService bookingService;
 
-    public BookableUnitController(BookableUnitService bookableUnitService, BookingService bookingService) {
+    public BookableUnitController(BookableUnitService bookableUnitService,
+                                  AddonService addonService,
+                                  BookingService bookingService
+    ) {
         this.bookableUnitService = bookableUnitService;
+        this.addonService = addonService;
         this.bookingService = bookingService;
     }
 
@@ -47,6 +55,15 @@ public class BookableUnitController {
     ){
         return bookingService.bookAUnit(unit_id,bookingRequestDTO);
     }
+
+    @PostMapping("/{unitId}/addons")
+    public AddonResponseDTO addAddon(@PathVariable Long unitId,
+                                     @RequestBody AddonRequestDTO dto){
+        return addonService.addAddon(unitId,dto);
+    }
+
+
+
 
 
 }

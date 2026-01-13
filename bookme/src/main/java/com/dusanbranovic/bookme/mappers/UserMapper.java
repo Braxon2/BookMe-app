@@ -1,6 +1,6 @@
 package com.dusanbranovic.bookme.mappers;
 
-import com.dusanbranovic.bookme.dto.UserDTO;
+import com.dusanbranovic.bookme.dto.responses.UserDTO;
 import com.dusanbranovic.bookme.models.User;
 import org.springframework.stereotype.Component;
 

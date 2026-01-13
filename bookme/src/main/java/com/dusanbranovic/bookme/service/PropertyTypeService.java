@@ -1,6 +1,6 @@
 package com.dusanbranovic.bookme.service;
 
-import com.dusanbranovic.bookme.dto.PropertyTypeDTO;
+import com.dusanbranovic.bookme.dto.responses.PropertyTypeDTO;
 import com.dusanbranovic.bookme.models.PropertyType;
 import com.dusanbranovic.bookme.repository.PropertyTypeRepository;
 import org.springframework.stereotype.Service;

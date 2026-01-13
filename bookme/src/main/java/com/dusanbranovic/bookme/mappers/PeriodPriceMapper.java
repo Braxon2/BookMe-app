@@ -1,7 +1,7 @@
 package com.dusanbranovic.bookme.mappers;
 
-import com.dusanbranovic.bookme.dto.PeriodPriceRequestDTO;
-import com.dusanbranovic.bookme.dto.PeriodPriceResponseDTO;
+import com.dusanbranovic.bookme.dto.requests.PeriodPriceRequestDTO;
+import com.dusanbranovic.bookme.dto.responses.PeriodPriceResponseDTO;
 import com.dusanbranovic.bookme.models.BookableUnit;
 import com.dusanbranovic.bookme.models.PeriodPrice;
 import org.springframework.stereotype.Component;

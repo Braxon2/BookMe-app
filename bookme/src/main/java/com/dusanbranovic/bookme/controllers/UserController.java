@@ -1,9 +1,6 @@
 package com.dusanbranovic.bookme.controllers;
 
-import com.dusanbranovic.bookme.dto.BookingResponseDTO;
-import com.dusanbranovic.bookme.dto.PropertyDTO;
-import com.dusanbranovic.bookme.dto.PropertyRequestDTO;
-import com.dusanbranovic.bookme.dto.UserDTO;
+import com.dusanbranovic.bookme.dto.responses.UserDTO;
 
 import com.dusanbranovic.bookme.service.BookingService;
 import com.dusanbranovic.bookme.service.PropertyService;

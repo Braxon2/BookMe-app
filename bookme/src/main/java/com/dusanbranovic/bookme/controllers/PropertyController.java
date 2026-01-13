@@ -1,13 +1,12 @@
 package com.dusanbranovic.bookme.controllers;
 
 
-import com.dusanbranovic.bookme.dto.BookableUnitRequestDTO;
-import com.dusanbranovic.bookme.dto.BookableUnitsResponseDTO;
-import com.dusanbranovic.bookme.dto.PropertyDTO;
-import com.dusanbranovic.bookme.dto.PropertyRequestDTO;
-import com.dusanbranovic.bookme.models.BookableUnit;
-import com.dusanbranovic.bookme.models.Property;
-import com.dusanbranovic.bookme.models.User;
+import com.dusanbranovic.bookme.dto.requests.BookableUnitRequestDTO;
+import com.dusanbranovic.bookme.dto.requests.PropertyRequestDTO;
+import com.dusanbranovic.bookme.dto.requests.ReviewRequestDTO;
+import com.dusanbranovic.bookme.dto.responses.BookableUnitsResponseDTO;
+import com.dusanbranovic.bookme.dto.responses.PropertyDTO;
+import com.dusanbranovic.bookme.dto.responses.ReviewResponseDTO;
 import com.dusanbranovic.bookme.service.PropertyService;
 import org.springframework.web.bind.annotation.*;
 
@@ -51,6 +50,17 @@ public class PropertyController {
     public BookableUnitsResponseDTO addUnit(@PathVariable Long pid,
                                             @RequestBody BookableUnitRequestDTO dto){
         return propertyService.addUnit(pid, dto);
+    }
+
+    @PostMapping("/{pid}/reviews")
+    public ReviewResponseDTO addReview(@RequestBody ReviewRequestDTO dto,
+                                       @PathVariable Long pid){
+        return propertyService.addReview(dto,pid);
+    }
+
+    @GetMapping("/{pid}/reviews")
+    public List<ReviewResponseDTO> getReviews(@PathVariable Long pid){
+        return propertyService.getReviews(pid);
     }
 
 

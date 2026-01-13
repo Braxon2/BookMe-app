@@ -1,10 +1,8 @@
 package com.dusanbranovic.bookme.mappers;
 
-import com.dusanbranovic.bookme.dto.BookingResponseDTO;
+import com.dusanbranovic.bookme.dto.responses.BookingResponseDTO;
 import com.dusanbranovic.bookme.models.Booking;
 import org.springframework.stereotype.Component;
-
-import java.awt.print.Book;
 
 @Component
 public class BookingMapper {

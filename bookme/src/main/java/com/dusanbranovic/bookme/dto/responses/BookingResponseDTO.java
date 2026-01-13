@@ -1,4 +1,4 @@
-package com.dusanbranovic.bookme.dto;
+package com.dusanbranovic.bookme.dto.responses;
 
 import com.dusanbranovic.bookme.models.BookingStatus;
 

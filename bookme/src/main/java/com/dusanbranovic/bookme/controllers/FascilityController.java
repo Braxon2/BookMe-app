@@ -1,8 +1,7 @@
 package com.dusanbranovic.bookme.controllers;
 
-import com.dusanbranovic.bookme.dto.FascilityRequestDTO;
-import com.dusanbranovic.bookme.dto.FascilityResponseDTO;
-import com.dusanbranovic.bookme.service.AddonService;
+import com.dusanbranovic.bookme.dto.requests.FascilityRequestDTO;
+import com.dusanbranovic.bookme.dto.responses.FascilityResponseDTO;
 import com.dusanbranovic.bookme.service.FascilityService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

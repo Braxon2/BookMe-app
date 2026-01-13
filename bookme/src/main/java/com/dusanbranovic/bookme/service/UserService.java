@@ -1,8 +1,7 @@
 package com.dusanbranovic.bookme.service;
 
-import com.dusanbranovic.bookme.dto.UserDTO;
+import com.dusanbranovic.bookme.dto.responses.UserDTO;
 import com.dusanbranovic.bookme.mappers.UserMapper;
-import com.dusanbranovic.bookme.models.User;
 import com.dusanbranovic.bookme.repository.UserRepository;
 import org.springframework.stereotype.Service;
 

@@ -1,11 +1,9 @@
 package com.dusanbranovic.bookme.service;
 
-import com.dusanbranovic.bookme.dto.FascilityRequestDTO;
-import com.dusanbranovic.bookme.dto.FascilityResponseDTO;
+import com.dusanbranovic.bookme.dto.requests.FascilityRequestDTO;
+import com.dusanbranovic.bookme.dto.responses.FascilityResponseDTO;
 import com.dusanbranovic.bookme.exceptions.EntityAlreadyExistsExcpetion;
-import com.dusanbranovic.bookme.exceptions.EntityNotFoundException;
 import com.dusanbranovic.bookme.models.Fascillity;
-import com.dusanbranovic.bookme.repository.ContactPersonRepository;
 import com.dusanbranovic.bookme.repository.FasiliityRepository;
 import org.springframework.stereotype.Service;
 

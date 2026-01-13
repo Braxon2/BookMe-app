@@ -1,5 +1,7 @@
-package com.dusanbranovic.bookme.dto;
+package com.dusanbranovic.bookme.dto.responses;
 
+
+import java.util.List;
 
 public record PropertyDTO(
         Long id,
@@ -11,6 +13,7 @@ public record PropertyDTO(
         String city,
         String address,
         String houseRules,
-        String importantInfo
+        String importantInfo,
+        List<FascilityResponseDTO> fascilitiesDTO
 ) {
 }

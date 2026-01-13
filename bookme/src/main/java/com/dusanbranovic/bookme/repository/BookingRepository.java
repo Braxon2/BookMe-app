@@ -13,16 +13,17 @@ import java.util.List;
 public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     @Query("""
-        SELECT b FROM Booking b
-        WHERE b.bookableUnit.id = :unitId
-        AND b.status <> 'CANCELLED'
-        AND :start < b.checkOut
-        AND :end > b.checkIn
+SELECT COUNT(b) FROM Booking b
+WHERE b.bookableUnit.id = :unitId
+AND b.status <> 'CANCELLED'
+AND :start < b.checkOut
+AND :end > b.checkIn
 """)
-    List<Booking> findOverlappingBookings(
+    long countOverlappingBookings(
             @Param("unitId") Long unitId,
             @Param("start") LocalDateTime start,
             @Param("end") LocalDateTime end
     );
+
 
 }

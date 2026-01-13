@@ -1,12 +1,15 @@
 package com.dusanbranovic.bookme.service;
 
-import com.dusanbranovic.bookme.dto.BookableUnitsResponseDTO;
-import com.dusanbranovic.bookme.dto.BookingRequestDTO;
-import com.dusanbranovic.bookme.dto.BookingResponseDTO;
-import com.dusanbranovic.bookme.dto.UserDTO;
+import com.dusanbranovic.bookme.dto.requests.AddonsRequestDTO;
+import com.dusanbranovic.bookme.dto.responses.AddonResponseDTO;
+import com.dusanbranovic.bookme.dto.responses.BookableUnitsResponseDTO;
+import com.dusanbranovic.bookme.dto.requests.BookingRequestDTO;
+import com.dusanbranovic.bookme.dto.responses.BookingResponseDTO;
+import com.dusanbranovic.bookme.dto.responses.UserDTO;
 import com.dusanbranovic.bookme.exceptions.EntityNotFoundException;
 import com.dusanbranovic.bookme.exceptions.UnitAlreadyBookedException;
 import com.dusanbranovic.bookme.models.*;
+import com.dusanbranovic.bookme.repository.AddonRepository;
 import com.dusanbranovic.bookme.repository.BookableUnitRepository;
 import com.dusanbranovic.bookme.repository.BookingRepository;
 import com.dusanbranovic.bookme.repository.UserRepository;
@@ -16,11 +19,10 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.Date;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Service
 public class BookingService {
@@ -28,11 +30,16 @@ public class BookingService {
     private final BookingRepository bookingRepository;
     private final UserRepository userRepository;
     private final BookableUnitRepository bookableUnitRepository;
+    private final AddonRepository addonRepository;
 
-    public BookingService(BookingRepository bookingRepository, UserRepository userRepository, BookableUnitRepository bookableUnitRepository) {
+    public BookingService(BookingRepository bookingRepository,
+                          UserRepository userRepository,
+                          BookableUnitRepository bookableUnitRepository, AddonRepository addonRepository
+    ) {
         this.bookingRepository = bookingRepository;
         this.userRepository = userRepository;
         this.bookableUnitRepository = bookableUnitRepository;
+        this.addonRepository = addonRepository;
     }
 
     public BookingResponseDTO bookAUnit(Long unitId, BookingRequestDTO bookingRequestDTO) {
@@ -41,6 +48,21 @@ public class BookingService {
         if(optionalBookableUnit.isEmpty()) {
             throw new EntityNotFoundException("Unit with id " + unitId + " not found");
         }
+
+        List<Long> addonIds = bookingRequestDTO.addons().stream().map(AddonsRequestDTO::id).toList();
+
+        List<Addon> addons = new ArrayList<>();
+        for(int i = 0; i < addonIds.size(); i++){
+            Optional<Addon> optionalAddon = addonRepository.findById(addonIds.get(i));
+
+            if(optionalAddon.isEmpty())
+                throw new EntityNotFoundException("Addon with id " + addonIds.get(i) + " not found");
+            if(optionalAddon.get().getBookableUnit().getId() != unitId)
+                throw new IllegalArgumentException("Addon with id " + addonIds.get(i) + " not found in unit");
+            addons.add(optionalAddon.get());
+        }
+
+
 
         BookableUnit unit = optionalBookableUnit.get();
 
@@ -54,32 +76,23 @@ public class BookingService {
         LocalDateTime checkIn = start.atStartOfDay();
         LocalDateTime checkOut = end.atStartOfDay();
 
-        List<Booking> overlaps =
-                bookingRepository.findOverlappingBookings(unitId, checkIn, checkOut);
+        Long overlappingCount  =
+                bookingRepository.countOverlappingBookings(unitId, checkIn, checkOut);
 
-        if (!overlaps.isEmpty()) {
-            throw new UnitAlreadyBookedException("Unit is not available for selected dates");
+        if (overlappingCount >= unit.getTotalUnits()) {
+            throw new IllegalStateException("No available units for selected dates");
         }
 
         List<PeriodPrice> prices = unit.getPeriodPriceList();
+        double totalAddonPrice = 0;
+        double totalPrice = calculatePrice(start,end,prices);
 
-        double totalPrice = 0.0;
-
-        for (LocalDate date = start; date.isBefore(end); date = date.plusDays(1)) {
-
-            LocalDate finalDate = date;
-            PeriodPrice priceForDay = prices.stream()
-                    .filter(p ->
-                            !finalDate.isBefore(p.getStartDate()) &&
-                                    !finalDate.isAfter(p.getEndDate())
-                    )
-                    .findFirst()
-                    .orElseThrow(() ->
-                            new IllegalStateException(
-                                    "No price defined for date " + finalDate));
-
-            totalPrice += priceForDay.getPricePerNight();
+        for(int i = 0; i < addons.size(); i++){
+            totalAddonPrice += calculateAddonPrice(start,end,addons.get(i));
         }
+
+        totalPrice += totalAddonPrice;
+
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         User guest = (User) auth.getPrincipal();
@@ -130,5 +143,76 @@ public class BookingService {
 
 
 
+    }
+
+    private double calculatePrice(LocalDate start, LocalDate end,List<PeriodPrice> prices){
+
+        double totalPrice = 0.0;
+        for (LocalDate date = start; date.isBefore(end); date = date.plusDays(1)) {
+
+            LocalDate finalDate = date;
+            PeriodPrice priceForDay = prices.stream()
+                    .filter(p ->
+                            !finalDate.isBefore(p.getStartDate()) &&
+                                    !finalDate.isAfter(p.getEndDate())
+                    )
+                    .findFirst()
+                    .orElseThrow(() ->
+                            new IllegalStateException(
+                                    "No price defined for date " + finalDate));
+
+            totalPrice += priceForDay.getPricePerNight();
+        }
+
+        return totalPrice;
+    }
+
+    private double calculateAddonPrice(
+            LocalDate start,
+            LocalDate end,
+            Addon addon
+    ) {
+        List<PeriodPriceAddon> prices = addon.getPeriodPriceAddonList();
+
+        if (addon.isPerNight()) {
+            return calculatePerNight(start, end, prices);
+        } else {
+            return calculateOnce(start, prices);
+        }
+    }
+
+    private double calculateOnce(LocalDate start, List<PeriodPriceAddon> prices) {
+        PeriodPriceAddon price = prices.stream()
+                .filter(p ->
+                        !start.isBefore(p.getStartDate()) &&
+                                !start.isAfter(p.getEndDate())
+                )
+                .findFirst()
+                .orElseThrow(() ->
+                        new IllegalStateException("No addon price defined"));
+
+        return price.getPrice();
+    }
+
+    private double calculatePerNight(LocalDate start, LocalDate end,List<PeriodPriceAddon> prices){
+
+        double totalPrice = 0.0;
+        for (LocalDate date = start; date.isBefore(end); date = date.plusDays(1)) {
+
+            LocalDate finalDate = date;
+            PeriodPriceAddon priceForDay = prices.stream()
+                    .filter(p ->
+                            !finalDate.isBefore(p.getStartDate()) &&
+                                    !finalDate.isAfter(p.getEndDate())
+                    )
+                    .findFirst()
+                    .orElseThrow(() ->
+                            new IllegalStateException(
+                                    "No price defined for date " + finalDate));
+
+            totalPrice += priceForDay.getPrice();
+        }
+
+        return totalPrice;
     }
 }
