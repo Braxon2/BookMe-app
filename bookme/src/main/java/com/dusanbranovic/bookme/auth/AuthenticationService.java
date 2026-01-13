@@ -22,7 +22,12 @@ public class AuthenticationService {
 
     private final AuthenticationManager authenticationManager;
 
-    public AuthenticationService(JwtService jwtService, PasswordEncoder passwordEncoder, UserRepository userRepository, AuthenticationManager authenticationManager) {
+    public AuthenticationService(
+            JwtService jwtService,
+            PasswordEncoder passwordEncoder,
+            UserRepository userRepository,
+            AuthenticationManager authenticationManager
+    ) {
         this.jwtService = jwtService;
         this.passwordEncoder = passwordEncoder;
         this.userRepository = userRepository;
@@ -31,7 +36,8 @@ public class AuthenticationService {
 
     public AuthResponse register(AuthRegisterRequest registerRequest) {
 
-        User user = new User(UserType.OWNER,
+        User user = new User(
+                registerRequest.getUserType(),
                 registerRequest.getEmail(),
                 registerRequest.getFirstName(),
                 registerRequest.getLastName(),

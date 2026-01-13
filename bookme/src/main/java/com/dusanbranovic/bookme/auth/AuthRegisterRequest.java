@@ -1,11 +1,14 @@
 package com.dusanbranovic.bookme.auth;
 
+import com.dusanbranovic.bookme.models.UserType;
+
 public class AuthRegisterRequest {
     private String email;
     private String firstName;
     private String lastName;
     private String password;
     private String phoneNumber;
+    private UserType userType;
 
     public String getEmail() {
         return email;
@@ -45,5 +48,13 @@ public class AuthRegisterRequest {
 
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
+    }
+
+    public UserType getUserType() {
+        return userType;
+    }
+
+    public void setUserType(UserType userType) {
+        this.userType = userType;
     }
 }
