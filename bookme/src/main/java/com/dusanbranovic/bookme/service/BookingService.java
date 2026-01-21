@@ -13,6 +13,8 @@ import com.dusanbranovic.bookme.repository.AddonRepository;
 import com.dusanbranovic.bookme.repository.BookableUnitRepository;
 import com.dusanbranovic.bookme.repository.BookingRepository;
 import com.dusanbranovic.bookme.repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -32,6 +34,9 @@ public class BookingService {
     private final BookableUnitRepository bookableUnitRepository;
     private final AddonRepository addonRepository;
 
+    private static final Logger log = LoggerFactory.getLogger(BookingService.class);
+
+
     public BookingService(BookingRepository bookingRepository,
                           UserRepository userRepository,
                           BookableUnitRepository bookableUnitRepository, AddonRepository addonRepository
@@ -46,6 +51,7 @@ public class BookingService {
         Optional<BookableUnit> optionalBookableUnit = bookableUnitRepository.findById(unitId);
 
         if(optionalBookableUnit.isEmpty()) {
+            log.error("Unit not found");
             throw new EntityNotFoundException("Unit with id " + unitId + " not found");
         }
 
@@ -55,10 +61,14 @@ public class BookingService {
         for(int i = 0; i < addonIds.size(); i++){
             Optional<Addon> optionalAddon = addonRepository.findById(addonIds.get(i));
 
-            if(optionalAddon.isEmpty())
+            if(optionalAddon.isEmpty()) {
+                log.error("Addon not found");
                 throw new EntityNotFoundException("Addon with id " + addonIds.get(i) + " not found");
-            if(optionalAddon.get().getBookableUnit().getId() != unitId)
+            }
+            if(optionalAddon.get().getBookableUnit().getId() != unitId) {
+                log.error("Addon not found in unit " + unitId);
                 throw new IllegalArgumentException("Addon with id " + addonIds.get(i) + " not found in unit");
+            }
             addons.add(optionalAddon.get());
         }
 
@@ -70,6 +80,7 @@ public class BookingService {
         LocalDate end = bookingRequestDTO.end_date();
 
         if (!start.isBefore(end)) {
+            log.error("Start date must be before end date");
             throw new IllegalArgumentException("Start date must be before end date");
         }
 
@@ -80,6 +91,7 @@ public class BookingService {
                 bookingRepository.countOverlappingBookings(unitId, checkIn, checkOut);
 
         if (overlappingCount >= unit.getTotalUnits()) {
+            log.error("No available units for selected dates");
             throw new IllegalStateException("No available units for selected dates");
         }
 
@@ -92,6 +104,8 @@ public class BookingService {
         }
 
         totalPrice += totalAddonPrice;
+
+        log.info("Total price calculated successfully");
 
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -106,6 +120,8 @@ public class BookingService {
                 checkOut,
                 BookingStatus.CONFIRMED
         );
+
+        log.info("Booking created successfully");
 
         bookingRepository.save(booking);
 
@@ -145,7 +161,11 @@ public class BookingService {
 
     }
 
-    private double calculatePrice(LocalDate start, LocalDate end,List<PeriodPrice> prices){
+    private double calculatePrice(
+            LocalDate start,
+            LocalDate end,
+            List<PeriodPrice> prices
+    ){
 
         double totalPrice = 0.0;
         for (LocalDate date = start; date.isBefore(end); date = date.plusDays(1)) {
@@ -157,9 +177,12 @@ public class BookingService {
                                     !finalDate.isAfter(p.getEndDate())
                     )
                     .findFirst()
-                    .orElseThrow(() ->
-                            new IllegalStateException(
-                                    "No price defined for date " + finalDate));
+                    .orElseThrow(() -> {
+                        log.warn("No price defined for date " + finalDate);
+                        return new IllegalStateException(
+                                "No price defined for date " + finalDate);
+                    });
+
 
             totalPrice += priceForDay.getPricePerNight();
         }
@@ -181,20 +204,29 @@ public class BookingService {
         }
     }
 
-    private double calculateOnce(LocalDate start, List<PeriodPriceAddon> prices) {
+    private double calculateOnce(
+            LocalDate start,
+            List<PeriodPriceAddon> prices
+    ) {
         PeriodPriceAddon price = prices.stream()
                 .filter(p ->
                         !start.isBefore(p.getStartDate()) &&
                                 !start.isAfter(p.getEndDate())
                 )
                 .findFirst()
-                .orElseThrow(() ->
-                        new IllegalStateException("No addon price defined"));
+                .orElseThrow(() -> {
+                    log.warn("No addon price defined");
+                    return new IllegalStateException("No addon price defined");
+                });
 
         return price.getPrice();
     }
 
-    private double calculatePerNight(LocalDate start, LocalDate end,List<PeriodPriceAddon> prices){
+    private double calculatePerNight(
+            LocalDate start,
+            LocalDate end,
+            List<PeriodPriceAddon> prices
+    ){
 
         double totalPrice = 0.0;
         for (LocalDate date = start; date.isBefore(end); date = date.plusDays(1)) {
@@ -206,9 +238,12 @@ public class BookingService {
                                     !finalDate.isAfter(p.getEndDate())
                     )
                     .findFirst()
-                    .orElseThrow(() ->
-                            new IllegalStateException(
-                                    "No price defined for date " + finalDate));
+                    .orElseThrow(() -> {
+                        log.warn("No price defined for date " + finalDate);
+                                return new IllegalStateException(
+                                        "No price defined for date " + finalDate);
+                            }
+                    );
 
             totalPrice += priceForDay.getPrice();
         }

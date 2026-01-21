@@ -57,8 +57,10 @@ public class BookableUnitController {
     }
 
     @PostMapping("/{unitId}/addons")
-    public AddonResponseDTO addAddon(@PathVariable Long unitId,
-                                     @RequestBody AddonRequestDTO dto){
+    public AddonResponseDTO addAddon(
+            @PathVariable Long unitId,
+            @RequestBody AddonRequestDTO dto
+    ){
         return addonService.addAddon(unitId,dto);
     }
 

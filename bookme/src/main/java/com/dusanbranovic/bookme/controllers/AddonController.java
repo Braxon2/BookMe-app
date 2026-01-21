@@ -19,8 +19,6 @@ public class AddonController {
         this.addonService = addonService;
     }
 
-
-
     @GetMapping
     public List<AddonResponseDTO> getAllAddons(){
         return addonService.getAllAddons();

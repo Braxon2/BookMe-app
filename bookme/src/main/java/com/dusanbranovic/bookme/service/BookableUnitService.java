@@ -9,6 +9,8 @@ import com.dusanbranovic.bookme.models.BookableUnit;
 import com.dusanbranovic.bookme.models.PeriodPrice;
 import com.dusanbranovic.bookme.repository.BookableUnitRepository;
 import com.dusanbranovic.bookme.repository.PeriodPriceRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,6 +25,8 @@ public class BookableUnitService {
 
     private final BookableUnitMapper bookableUnitMapper;
     private final PeriodPriceMapper periodPriceMapper;
+
+    private static final Logger log = LoggerFactory.getLogger(BookableUnitService.class);
 
     public BookableUnitService(
             BookableUnitRepository bookableUnitRepository,
@@ -43,6 +47,7 @@ public class BookableUnitService {
         Optional<BookableUnit> optionalBookableUnit = bookableUnitRepository.findById(unitId);
 
         if(optionalBookableUnit.isEmpty()) {
+            log.error("Unit not found");
             throw new EntityNotFoundException("Unit with id " + unitId + " not found");
         }
 
@@ -52,8 +57,11 @@ public class BookableUnitService {
 
         PeriodPrice periodPrice = periodPriceMapper.toEntity(periodPriceDTO, unit);
 
+        log.debug("Created periodPrice body {}", periodPrice);
 
         PeriodPrice savedPeriodPrice = periodPriceRepository.save(periodPrice);
+
+        log.info("Period price created successfully");
 
         return periodPriceMapper.toDTO(savedPeriodPrice);
 
@@ -64,14 +72,13 @@ public class BookableUnitService {
         Optional<BookableUnit> optionalBookableUnit = bookableUnitRepository.findById(unitId);
 
         if(optionalBookableUnit.isEmpty()) {
+            log.error("Unit not found");
             throw new EntityNotFoundException("Unit with id " + unitId + " not found");
         }
 
         BookableUnit unit = optionalBookableUnit.get();
 
-
-
-
+        log.info("Period price fetched successfully");
 
         return unit.getPeriodPriceList().
                 stream().

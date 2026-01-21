@@ -8,6 +8,8 @@ import com.dusanbranovic.bookme.dto.responses.BookableUnitsResponseDTO;
 import com.dusanbranovic.bookme.dto.responses.PropertyDTO;
 import com.dusanbranovic.bookme.dto.responses.ReviewResponseDTO;
 import com.dusanbranovic.bookme.service.PropertyService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -18,6 +20,8 @@ import java.util.List;
 public class PropertyController {
 
     private final PropertyService propertyService;
+
+    private static final Logger log = LoggerFactory.getLogger(PropertyController.class);
 
     public PropertyController(PropertyService propertyService) {
         this.propertyService = propertyService;
@@ -38,6 +42,7 @@ public class PropertyController {
 
     @GetMapping("/{pid}")
     public PropertyDTO getProperty(@PathVariable Long pid){
+        log.info("Fetching property with id: {} ", pid);
         return propertyService.getProperty(pid);
     }
 

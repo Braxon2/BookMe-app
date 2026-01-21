@@ -14,6 +14,9 @@ import com.dusanbranovic.bookme.mappers.PropertyTypeMapper;
 import com.dusanbranovic.bookme.mappers.UserMapper;
 import com.dusanbranovic.bookme.models.*;
 import com.dusanbranovic.bookme.repository.*;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -32,6 +35,7 @@ public class PropertyService {
     private final FasiliityRepository fasiliityRepository;
     private final PropertyFascilityRepository propertyFascilityRepository;
 
+
     private final PropertyMapper propertyMapper;
     private final PropertyTypeMapper propertyTypeMapper;
     private final BookableUnitMapper bookableUnitMapper;
@@ -39,11 +43,15 @@ public class PropertyService {
     private final ReviewRepository reviewRepository;
     private final UserMapper userMapper;
 
+
+    private static final Logger log = LoggerFactory.getLogger(PropertyService.class);
+
     public PropertyService(
             PropertyRepository propertyRepository,
             UserRepository userRepository,
             PropertyTypeRepository propertyTypeRepository,
-            FasiliityRepository fasiliityRepository, PropertyFascilityRepository propertyFascilityRepository,
+            FasiliityRepository fasiliityRepository,
+            PropertyFascilityRepository propertyFascilityRepository,
             PropertyMapper propertyMapper,
             PropertyTypeMapper propertyTypeMapper,
             BookableUnitMapper bookableUnitMapper,
@@ -65,6 +73,7 @@ public class PropertyService {
     }
 
     public List<PropertyDTO> getAll() {
+
         return propertyRepository.findAll()
                 .stream()
                 .map(propertyMapper::toDTO)
@@ -75,13 +84,15 @@ public class PropertyService {
         Optional<Property> optionalProperty = propertyRepository.findById(pid);
 
         if(optionalProperty.isEmpty()) {
+            log.error("Property not found");
             throw new EntityNotFoundException("Property with id " + pid + " not found");
         }
 
+        log.info("Property successfully fetched");
 
-            return propertyMapper.toDTO(
+        return propertyMapper.toDTO(
                     optionalProperty.get()
-            );
+        );
     }
 
     public PropertyDTO addProperty(PropertyRequestDTO dto, String email) {
@@ -92,6 +103,7 @@ public class PropertyService {
 
         Optional<PropertyType> optionalPropertyType = propertyTypeRepository.findById(dto.propertyTypeDTO().id());
         if(optionalPropertyType.isEmpty()){
+            log.error("Property type not found");
             throw new EntityNotFoundException("Property type with " + dto.propertyTypeDTO().id() + " not found");
         }
 
@@ -103,6 +115,7 @@ public class PropertyService {
         List<Fascillity> fascillities = fasiliityRepository.findAllById(fascilityIds);
 
         if(fascillities.size() != fascilityIds.size()){
+            log.error("One or more fascility IDs were invalid");
             throw new EntityNotFoundException("One or more fascility IDs were invalid");
         }
 
@@ -119,16 +132,19 @@ public class PropertyService {
         property.setHouseRules(dto.houseRules());
         property.setImportantInfo(dto.importantInfo());
 
-        System.out.println(property);
+        log.debug("Created property body {}", property);
 
 
         Property savedProperty = propertyRepository.save(property);
         List<PropertyFacility> propertyFacilities = fascillities.
                 stream().
-                map(fascillity -> new PropertyFacility(savedProperty,fascillity)).collect(Collectors.toList());
+                map(fascillity -> new PropertyFacility(savedProperty,fascillity)).
+                collect(Collectors.toList());
 
         propertyFascilityRepository.saveAll(propertyFacilities);
         savedProperty.setPropertyFacilities(propertyFacilities);
+
+        log.info("Property created successfully");
 
         return propertyMapper.toDTO(savedProperty);
     }
@@ -138,10 +154,13 @@ public class PropertyService {
         Optional<Property> optionalProperty = propertyRepository.findById(pid);
 
         if(optionalProperty.isEmpty()) {
+            log.error("Property not found");
             throw new EntityNotFoundException("Property with id " + pid + " not found");
         }
 
         Property property = optionalProperty.get();
+        if(property.getUnits().isEmpty()) log.warn("Property have no units");
+        else log.info("Units successfully fetched");
         return property.getUnits().
                 stream().
                 map(bookableUnitMapper::toDTO)
@@ -153,6 +172,7 @@ public class PropertyService {
         Optional<Property> optionalProperty = propertyRepository.findById(pid);
 
         if(optionalProperty.isEmpty()) {
+            log.error("Property not found");
             throw new EntityNotFoundException("Property with id " + pid + " not found");
         }
 
@@ -160,9 +180,13 @@ public class PropertyService {
 
         BookableUnit unit = bookableUnitMapper.toEntity(dto,property);
 
+        log.debug("Created unit body {}", unit);
+
         BookableUnit savedUnit = bookableUnitRepository.save(unit);
         List<BookableUnit> units = property.getUnits();
         units.add(unit);
+
+        log.info("Unit created successfully");
 
         return bookableUnitMapper.toDTO(savedUnit);
 
@@ -172,6 +196,7 @@ public class PropertyService {
         Optional<Property> optionalProperty = propertyRepository.findById(pid);
 
         if(optionalProperty.isEmpty()) {
+            log.error("Property not found");
             throw new EntityNotFoundException("Property with id " + pid + " not found");
         }
 
@@ -187,9 +212,13 @@ public class PropertyService {
         review.setRating(dto.rating());
         review.setCreatedAt(LocalDateTime.now());
 
+        log.debug("Created review body {}", review);
+
+
         reviewRepository.save(review);
 
 
+        log.info("Review created successfully");
 
         return new ReviewResponseDTO(
                 review.getId(),
@@ -204,10 +233,13 @@ public class PropertyService {
         Optional<Property> optionalProperty = propertyRepository.findById(pid);
 
         if(optionalProperty.isEmpty()) {
+            log.error("Property not found");
             throw new EntityNotFoundException("Property with id " + pid + " not found");
         }
 
         Property property = optionalProperty.get();
+
+        log.info("Reviews successfully fetched");
 
         return property.getReviews().
                 stream().
