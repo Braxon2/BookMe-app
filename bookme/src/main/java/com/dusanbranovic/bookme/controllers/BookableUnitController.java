@@ -10,7 +10,9 @@ import com.dusanbranovic.bookme.dto.responses.PeriodPriceResponseDTO;
 import com.dusanbranovic.bookme.service.AddonService;
 import com.dusanbranovic.bookme.service.BookableUnitService;
 import com.dusanbranovic.bookme.service.BookingService;
+import com.dusanbranovic.bookme.service.S3Service;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -20,15 +22,17 @@ public class BookableUnitController {
 
     private final BookableUnitService bookableUnitService;
     private final AddonService addonService;
+    private final S3Service s3Service;
 
     private final BookingService bookingService;
 
     public BookableUnitController(BookableUnitService bookableUnitService,
-                                  AddonService addonService,
+                                  AddonService addonService, S3Service s3Service,
                                   BookingService bookingService
     ) {
         this.bookableUnitService = bookableUnitService;
         this.addonService = addonService;
+        this.s3Service = s3Service;
         this.bookingService = bookingService;
     }
 
@@ -62,6 +66,14 @@ public class BookableUnitController {
             @RequestBody AddonRequestDTO dto
     ){
         return addonService.addAddon(unitId,dto);
+    }
+
+    @PostMapping("/{uid}/images")
+    public String uploadUnitImage(
+            @PathVariable Long uid,
+            @RequestParam("image") MultipartFile file
+    ){
+        return s3Service.uploadUnitImage(uid, file);
     }
 
 

@@ -14,12 +14,12 @@ import com.dusanbranovic.bookme.mappers.PropertyTypeMapper;
 import com.dusanbranovic.bookme.mappers.UserMapper;
 import com.dusanbranovic.bookme.models.*;
 import com.dusanbranovic.bookme.repository.*;
-import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -34,6 +34,7 @@ public class PropertyService {
     private final PropertyTypeRepository propertyTypeRepository;
     private final FasiliityRepository fasiliityRepository;
     private final PropertyFascilityRepository propertyFascilityRepository;
+    private final S3Service s3Service;
 
 
     private final PropertyMapper propertyMapper;
@@ -51,7 +52,7 @@ public class PropertyService {
             UserRepository userRepository,
             PropertyTypeRepository propertyTypeRepository,
             FasiliityRepository fasiliityRepository,
-            PropertyFascilityRepository propertyFascilityRepository,
+            PropertyFascilityRepository propertyFascilityRepository, S3Service s3Service,
             PropertyMapper propertyMapper,
             PropertyTypeMapper propertyTypeMapper,
             BookableUnitMapper bookableUnitMapper,
@@ -64,6 +65,7 @@ public class PropertyService {
         this.propertyTypeRepository = propertyTypeRepository;
         this.fasiliityRepository = fasiliityRepository;
         this.propertyFascilityRepository = propertyFascilityRepository;
+        this.s3Service = s3Service;
         this.propertyMapper = propertyMapper;
         this.propertyTypeMapper = propertyTypeMapper;
         this.bookableUnitMapper = bookableUnitMapper;
@@ -253,4 +255,6 @@ public class PropertyService {
                         )
                 ).collect(Collectors.toList());
     }
+
+
 }

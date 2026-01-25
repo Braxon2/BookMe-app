@@ -8,9 +8,11 @@ import com.dusanbranovic.bookme.dto.responses.BookableUnitsResponseDTO;
 import com.dusanbranovic.bookme.dto.responses.PropertyDTO;
 import com.dusanbranovic.bookme.dto.responses.ReviewResponseDTO;
 import com.dusanbranovic.bookme.service.PropertyService;
+import com.dusanbranovic.bookme.service.S3Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
 import java.util.List;
@@ -20,11 +22,13 @@ import java.util.List;
 public class PropertyController {
 
     private final PropertyService propertyService;
+    private final S3Service s3Service;
 
     private static final Logger log = LoggerFactory.getLogger(PropertyController.class);
 
-    public PropertyController(PropertyService propertyService) {
+    public PropertyController(PropertyService propertyService, S3Service s3Service) {
         this.propertyService = propertyService;
+        this.s3Service = s3Service;
     }
 
     @GetMapping
@@ -68,6 +72,11 @@ public class PropertyController {
         return propertyService.getReviews(pid);
     }
 
+    @PostMapping("/{pid}/images")
+    public String uploadPropertyImage(@PathVariable Long pid,
+                                      @RequestParam("image") MultipartFile file){
+        return s3Service.uploadPropertyImage(pid, file);
+    }
 
 
 }

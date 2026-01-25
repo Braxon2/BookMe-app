@@ -10,14 +10,9 @@ public class PropertyImage {
     private Long id;
 
     private String s3Key;
-
-
     private String url;
-
     private Boolean isPrimary;
-
     private Integer sortOrder;
-
     private String contentType;
 
     @ManyToOne(fetch = FetchType.LAZY)
