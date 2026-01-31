@@ -61,4 +61,53 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
 
     }
+
+    @ExceptionHandler(InvalidDateRangeException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidDateRangeExcpetion(
+            InvalidDateRangeException ex,
+            HttpServletRequest request
+    ){
+        ErrorResponse error = new ErrorResponse(
+                ex.getErrorCode(),
+                ex.getMessage(),
+                ex.getStatus().value(),
+                Instant.now(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+
+    }
+
+    @ExceptionHandler(OverlappingBookingExcpetion.class)
+    public ResponseEntity<ErrorResponse> handleOverlappingBookingExcpetion(
+            OverlappingBookingExcpetion ex,
+            HttpServletRequest request
+    ){
+        ErrorResponse error = new ErrorResponse(
+                ex.getErrorCode(),
+                ex.getMessage(),
+                ex.getStatus().value(),
+                Instant.now(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+    }
+
+    @ExceptionHandler(InvalidPriceValueException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidPriceValueException(
+            InvalidPriceValueException ex,
+            HttpServletRequest request
+    ){
+        ErrorResponse error = new ErrorResponse(
+                ex.getErrorCode(),
+                ex.getMessage(),
+                ex.getStatus().value(),
+                Instant.now(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+    }
 }

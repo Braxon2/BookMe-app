@@ -6,6 +6,8 @@ import com.dusanbranovic.bookme.dto.responses.AddonPeriodPriceResponseDTO;
 import com.dusanbranovic.bookme.dto.responses.AddonResponseDTO;
 import com.dusanbranovic.bookme.exceptions.EntityAlreadyExistsExcpetion;
 import com.dusanbranovic.bookme.exceptions.EntityNotFoundException;
+import com.dusanbranovic.bookme.exceptions.InvalidDateRangeException;
+import com.dusanbranovic.bookme.exceptions.InvalidPriceValueException;
 import com.dusanbranovic.bookme.models.Addon;
 import com.dusanbranovic.bookme.models.BookableUnit;
 import com.dusanbranovic.bookme.models.PeriodPriceAddon;
@@ -84,11 +86,11 @@ public class AddonService {
         LocalDate end = dto.endDate();
 
         if (!start.isBefore(end)) {
-            throw new IllegalArgumentException("Start date must be before end date");
+            throw new InvalidDateRangeException("Start date must be before end date");
         }
 
         if(dto.price() <= 0){
-            throw new IllegalArgumentException("Price must be greater than 0");
+            throw new InvalidPriceValueException("Price must be greater than 0");
         }
 
         PeriodPriceAddon periodPriceAddon = new PeriodPriceAddon(addon,dto.price(),dto.startDate(),dto.endDate());

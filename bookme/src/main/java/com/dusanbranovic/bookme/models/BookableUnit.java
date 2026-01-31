@@ -3,6 +3,7 @@ package com.dusanbranovic.bookme.models;
 import jakarta.persistence.*;
 
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -17,13 +18,13 @@ public class BookableUnit {
     private Property property;
 
     @OneToMany(mappedBy = "bookableUnit", cascade = CascadeType.ALL)
-    private List<PeriodPrice> periodPriceList;
+    private List<PeriodPrice> periodPriceList = new ArrayList<>();;
 
     @OneToMany(mappedBy = "bookableUnit", cascade = CascadeType.ALL)
     private List<Addon> addonList;
 
     @OneToMany(mappedBy = "bookableUnit", cascade = CascadeType.ALL)
-    private List<Booking> bookings;
+    private List<Booking> bookings = new ArrayList<>();;
 
     @OneToMany(mappedBy = "bookableUnit")
     private List<UnitFascilityMapping> unitFascilityMappings;
@@ -184,5 +185,10 @@ public class BookableUnit {
 
     public void setImages(List<UnitImage> images) {
         this.images = images;
+    }
+
+    public void addPeriodPrice(PeriodPrice periodPrice) {
+        this.periodPriceList.add(periodPrice);
+        periodPrice.setBookableUnit(this);
     }
 }

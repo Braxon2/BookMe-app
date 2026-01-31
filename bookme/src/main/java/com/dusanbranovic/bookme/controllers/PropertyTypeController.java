@@ -1,5 +1,6 @@
 package com.dusanbranovic.bookme.controllers;
 
+import com.dusanbranovic.bookme.dto.requests.PropertyTypeRequestDTO;
 import com.dusanbranovic.bookme.dto.responses.PropertyTypeDTO;
 import com.dusanbranovic.bookme.models.PropertyType;
 import com.dusanbranovic.bookme.service.PropertyTypeService;
@@ -22,7 +23,7 @@ public class PropertyTypeController {
     }
 
     @PostMapping
-    public PropertyType addType(@RequestBody PropertyTypeDTO dto){
+    public PropertyType addType(@RequestBody PropertyTypeRequestDTO dto){
         return propertyTypeService.addType(dto);
     }
 }

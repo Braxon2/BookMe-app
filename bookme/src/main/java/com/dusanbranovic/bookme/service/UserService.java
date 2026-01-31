@@ -28,10 +28,4 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
-//    public User addUser(UserDTO dto) {
-//
-//        User user = userMapper.toUser(dto);
-//
-//        return userRepository.save(user);
-//    }
 }

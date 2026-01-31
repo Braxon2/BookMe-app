@@ -2,6 +2,7 @@ package com.dusanbranovic.bookme.models;
 
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -16,7 +17,7 @@ public class Addon {
     private BookableUnit bookableUnit;
 
     @OneToMany(mappedBy = "addon", cascade = CascadeType.ALL)
-    private List<PeriodPriceAddon> periodPriceAddonList;
+    private List<PeriodPriceAddon> periodPriceAddonList = new ArrayList<>();
 
     private String name;
 

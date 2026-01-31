@@ -1,10 +1,12 @@
 package com.dusanbranovic.bookme.mappers;
 
+import com.dusanbranovic.bookme.dto.responses.FascilityResponseDTO;
 import com.dusanbranovic.bookme.dto.responses.PropertyDTO;
 import com.dusanbranovic.bookme.models.Property;
 import org.springframework.stereotype.Component;
 
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
@@ -24,6 +26,11 @@ public class PropertyMapper {
     }
 
     public PropertyDTO toDTO(Property property){
+        var facilities = property.getPropertyFacilities() == null
+                ? List.<FascilityResponseDTO>of()
+                : property.getPropertyFacilities().stream()
+                .map(fascilityMapper::toDTO)
+                .collect(Collectors.toList());
         return new PropertyDTO(property.getId(),
                 userMapper.toDTO(property.getOwner()),
                 propertyTypeMapper.toDTO(property.getPropertyType()),
@@ -34,7 +41,7 @@ public class PropertyMapper {
                 property.getAddress(),
                 property.getHouseRules(),
                 property.getImportantInfo(),
-                property.getPropertyFacilities().stream().map(fascilityMapper::toDTO).collect(Collectors.toList())
+                facilities
         );
     }
 

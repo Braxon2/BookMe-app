@@ -6,8 +6,7 @@ import com.dusanbranovic.bookme.dto.responses.BookableUnitsResponseDTO;
 import com.dusanbranovic.bookme.dto.requests.BookingRequestDTO;
 import com.dusanbranovic.bookme.dto.responses.BookingResponseDTO;
 import com.dusanbranovic.bookme.dto.responses.UserDTO;
-import com.dusanbranovic.bookme.exceptions.EntityNotFoundException;
-import com.dusanbranovic.bookme.exceptions.UnitAlreadyBookedException;
+import com.dusanbranovic.bookme.exceptions.*;
 import com.dusanbranovic.bookme.models.*;
 import com.dusanbranovic.bookme.repository.AddonRepository;
 import com.dusanbranovic.bookme.repository.BookableUnitRepository;
@@ -37,9 +36,11 @@ public class BookingService {
     private static final Logger log = LoggerFactory.getLogger(BookingService.class);
 
 
-    public BookingService(BookingRepository bookingRepository,
-                          UserRepository userRepository,
-                          BookableUnitRepository bookableUnitRepository, AddonRepository addonRepository
+    public BookingService(
+            BookingRepository bookingRepository,
+            UserRepository userRepository,
+            BookableUnitRepository bookableUnitRepository,
+            AddonRepository addonRepository
     ) {
         this.bookingRepository = bookingRepository;
         this.userRepository = userRepository;
@@ -48,59 +49,55 @@ public class BookingService {
     }
 
     public BookingResponseDTO bookAUnit(Long unitId, BookingRequestDTO bookingRequestDTO) {
-        Optional<BookableUnit> optionalBookableUnit = bookableUnitRepository.findById(unitId);
-
-        if(optionalBookableUnit.isEmpty()) {
+        BookableUnit unit = bookableUnitRepository.findById(unitId).orElseThrow(() -> {
             log.error("Unit not found");
-            throw new EntityNotFoundException("Unit with id " + unitId + " not found");
-        }
+            return new EntityNotFoundException("Unit with id " + unitId + " not found");
+        });
 
         List<Long> addonIds = bookingRequestDTO.addons().stream().map(AddonsRequestDTO::id).toList();
 
         List<Addon> addons = new ArrayList<>();
-        for(int i = 0; i < addonIds.size(); i++){
-            Optional<Addon> optionalAddon = addonRepository.findById(addonIds.get(i));
-
-            if(optionalAddon.isEmpty()) {
+        for (int i = 0; i < addonIds.size(); i++) {
+            int row = i;
+            Addon addon = addonRepository.findById(addonIds.get(i)).orElseThrow(() -> {
                 log.error("Addon not found");
-                throw new EntityNotFoundException("Addon with id " + addonIds.get(i) + " not found");
-            }
-            if(optionalAddon.get().getBookableUnit().getId() != unitId) {
+                throw new EntityNotFoundException("Addon with id " + addonIds.get(row) + " not found");
+            });
+
+
+            if (!addon.getBookableUnit().getId().equals(unitId)) {
                 log.error("Addon not found in unit " + unitId);
-                throw new IllegalArgumentException("Addon with id " + addonIds.get(i) + " not found in unit");
+                throw new EntityNotFoundException("Addon with id " + addonIds.get(i) + " not found in unit");
             }
-            addons.add(optionalAddon.get());
+            addons.add(addon);
         }
 
-
-
-        BookableUnit unit = optionalBookableUnit.get();
 
         LocalDate start = bookingRequestDTO.start_date();
         LocalDate end = bookingRequestDTO.end_date();
 
         if (!start.isBefore(end)) {
             log.error("Start date must be before end date");
-            throw new IllegalArgumentException("Start date must be before end date");
+            throw new InvalidDateRangeException("Start date must be before end date");
         }
 
         LocalDateTime checkIn = start.atStartOfDay();
         LocalDateTime checkOut = end.atStartOfDay();
 
-        Long overlappingCount  =
+        long overlappingCount =
                 bookingRepository.countOverlappingBookings(unitId, checkIn, checkOut);
 
         if (overlappingCount >= unit.getTotalUnits()) {
             log.error("No available units for selected dates");
-            throw new IllegalStateException("No available units for selected dates");
+            throw new OverlappingBookingExcpetion("No available units for selected dates");
         }
 
         List<PeriodPrice> prices = unit.getPeriodPriceList();
         double totalAddonPrice = 0;
-        double totalPrice = calculatePrice(start,end,prices);
+        double totalPrice = calculatePrice(start, end, prices);
 
-        for(int i = 0; i < addons.size(); i++){
-            totalAddonPrice += calculateAddonPrice(start,end,addons.get(i));
+        for (int i = 0; i < addons.size(); i++) {
+            totalAddonPrice += calculateAddonPrice(start, end, addons.get(i));
         }
 
         totalPrice += totalAddonPrice;
@@ -156,16 +153,13 @@ public class BookingService {
                 checkOut,
                 BookingStatus.CONFIRMED
         );
-
-
-
     }
 
     private double calculatePrice(
             LocalDate start,
             LocalDate end,
             List<PeriodPrice> prices
-    ){
+    ) {
 
         double totalPrice = 0.0;
         for (LocalDate date = start; date.isBefore(end); date = date.plusDays(1)) {
@@ -179,7 +173,7 @@ public class BookingService {
                     .findFirst()
                     .orElseThrow(() -> {
                         log.warn("No price defined for date " + finalDate);
-                        return new IllegalStateException(
+                        return new EntityNotFoundException(
                                 "No price defined for date " + finalDate);
                     });
 
@@ -216,7 +210,7 @@ public class BookingService {
                 .findFirst()
                 .orElseThrow(() -> {
                     log.warn("No addon price defined");
-                    return new IllegalStateException("No addon price defined");
+                    return new EntityNotFoundException("No addon price defined");
                 });
 
         return price.getPrice();
@@ -226,7 +220,7 @@ public class BookingService {
             LocalDate start,
             LocalDate end,
             List<PeriodPriceAddon> prices
-    ){
+    ) {
 
         double totalPrice = 0.0;
         for (LocalDate date = start; date.isBefore(end); date = date.plusDays(1)) {
@@ -239,8 +233,8 @@ public class BookingService {
                     )
                     .findFirst()
                     .orElseThrow(() -> {
-                        log.warn("No price defined for date " + finalDate);
-                                return new IllegalStateException(
+                                log.warn("No price defined for date " + finalDate);
+                                return new EntityNotFoundException(
                                         "No price defined for date " + finalDate);
                             }
                     );

@@ -2,6 +2,7 @@ package com.dusanbranovic.bookme.models;
 
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -20,19 +21,20 @@ public class Property {
     private PropertyType propertyType;
 
     @OneToMany(mappedBy = "property", cascade = CascadeType.ALL)
-    private List<BookableUnit> units;
+    private List<BookableUnit> units = new ArrayList<>();;
 
     @OneToMany(mappedBy = "property", cascade = CascadeType.ALL)
-    private List<PropertyFacility> propertyFacilities;
+    private List<PropertyFacility> propertyFacilities = new ArrayList<>();;
 
     @OneToMany(mappedBy = "property")
     private List<ContactPerson> contacts;
 
     @OneToMany(mappedBy = "property", cascade = CascadeType.ALL)
-    private List<Review> reviews;
+    private List<Review> reviews = new ArrayList<>();
 
     @OneToMany(mappedBy = "property", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PropertyImage> images;
+
 
     private String name;
     private String description;
@@ -222,5 +224,15 @@ public class Property {
                 ", houseRules='" + houseRules + '\'' +
                 ", importantInfo='" + importantInfo + '\'' +
                 '}';
+    }
+
+    public void addReview(Review review) {
+        this.reviews.add(review);
+        review.setProperty(this);
+    }
+
+    public void addUnit(BookableUnit unit) {
+        this.units.add(unit);
+        unit.setProperty(this);
     }
 }

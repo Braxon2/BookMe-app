@@ -34,6 +34,9 @@ public class SecurityConfig {
 
                         .requestMatchers(HttpMethod.POST,"/api/properties").hasAnyAuthority("ADMIN","OWNER")
 
+                        .requestMatchers(HttpMethod.GET,"/api/property-type").hasAnyAuthority("ADMIN","OWNER","USER")
+                        .requestMatchers(HttpMethod.POST,"/api/property-type").hasAnyAuthority("ADMIN","OWNER")
+
                         .requestMatchers(HttpMethod.POST, "/api/properties/*/add-unit").hasAnyAuthority("ADMIN", "OWNER")
                         .requestMatchers(HttpMethod.POST, "/api/properties/*/images").hasAnyAuthority("ADMIN", "OWNER")
                         .requestMatchers(HttpMethod.GET, "/api/properties/*/reviews").hasAnyAuthority("ADMIN","OWNER","USER")

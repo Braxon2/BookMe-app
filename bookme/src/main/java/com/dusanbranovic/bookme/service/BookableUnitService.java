@@ -44,15 +44,10 @@ public class BookableUnitService {
             Long unitId,
             PeriodPriceRequestDTO periodPriceDTO
     ) {
-        Optional<BookableUnit> optionalBookableUnit = bookableUnitRepository.findById(unitId);
-
-        if(optionalBookableUnit.isEmpty()) {
+        BookableUnit unit = bookableUnitRepository.findById(unitId).orElseThrow(() ->{
             log.error("Unit not found");
-            throw new EntityNotFoundException("Unit with id " + unitId + " not found");
-        }
-
-
-        BookableUnit unit = optionalBookableUnit.get();
+            return new EntityNotFoundException("Unit with id " + unitId + " not found");
+        });
 
 
         PeriodPrice periodPrice = periodPriceMapper.toEntity(periodPriceDTO, unit);
@@ -69,14 +64,11 @@ public class BookableUnitService {
     }
 
     public List<PeriodPriceResponseDTO> getPeriodPrices(Long unitId) {
-        Optional<BookableUnit> optionalBookableUnit = bookableUnitRepository.findById(unitId);
 
-        if(optionalBookableUnit.isEmpty()) {
+        BookableUnit unit = bookableUnitRepository.findById(unitId).orElseThrow(() ->{
             log.error("Unit not found");
-            throw new EntityNotFoundException("Unit with id " + unitId + " not found");
-        }
-
-        BookableUnit unit = optionalBookableUnit.get();
+            return new EntityNotFoundException("Unit with id " + unitId + " not found");
+        });
 
         log.info("Period price fetched successfully");
 
