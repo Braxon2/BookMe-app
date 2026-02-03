@@ -110,4 +110,36 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
+
+    @ExceptionHandler(S3UploadException.class)
+    public ResponseEntity<ErrorResponse> handleS3UploadException(
+            S3UploadException ex,
+            HttpServletRequest request
+    ){
+        ErrorResponse error = new ErrorResponse(
+                ex.getErrorCode(),
+                ex.getMessage(),
+                ex.getStatus().value(),
+                Instant.now(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+    }
+
+    @ExceptionHandler(InvalidFileTypeException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidFileTypeException(
+            InvalidFileTypeException ex,
+            HttpServletRequest request
+    ){
+        ErrorResponse error = new ErrorResponse(
+                ex.getErrorCode(),
+                ex.getMessage(),
+                ex.getStatus().value(),
+                Instant.now(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+    }
 }

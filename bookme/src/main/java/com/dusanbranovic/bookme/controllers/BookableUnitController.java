@@ -4,6 +4,7 @@ package com.dusanbranovic.bookme.controllers;
 import com.dusanbranovic.bookme.dto.requests.AddonRequestDTO;
 import com.dusanbranovic.bookme.dto.requests.BookingRequestDTO;
 import com.dusanbranovic.bookme.dto.responses.AddonResponseDTO;
+import com.dusanbranovic.bookme.dto.responses.BookableUnitCardDTO;
 import com.dusanbranovic.bookme.dto.responses.BookingResponseDTO;
 import com.dusanbranovic.bookme.dto.requests.PeriodPriceRequestDTO;
 import com.dusanbranovic.bookme.dto.responses.PeriodPriceResponseDTO;
@@ -14,6 +15,7 @@ import com.dusanbranovic.bookme.service.S3Service;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -27,7 +29,8 @@ public class BookableUnitController {
     private final BookingService bookingService;
 
     public BookableUnitController(BookableUnitService bookableUnitService,
-                                  AddonService addonService, S3Service s3Service,
+                                  AddonService addonService,
+                                  S3Service s3Service,
                                   BookingService bookingService
     ) {
         this.bookableUnitService = bookableUnitService;
@@ -77,7 +80,16 @@ public class BookableUnitController {
     }
 
 
-
-
+    @GetMapping("/search")
+    public List<BookableUnitCardDTO> search(
+            @RequestParam String city,
+            @RequestParam String country,
+            @RequestParam int adults,
+            @RequestParam(defaultValue = "0") int kids,
+            @RequestParam LocalDate startDate,
+            @RequestParam LocalDate endDate
+    ){
+        return bookableUnitService.searchUnits(city, country, adults, kids, startDate, endDate);
+    }
 
 }

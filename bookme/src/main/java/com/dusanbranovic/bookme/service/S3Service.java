@@ -1,6 +1,8 @@
 package com.dusanbranovic.bookme.service;
 
 import com.dusanbranovic.bookme.exceptions.EntityNotFoundException;
+import com.dusanbranovic.bookme.exceptions.InvalidFileTypeException;
+import com.dusanbranovic.bookme.exceptions.S3UploadException;
 import com.dusanbranovic.bookme.models.BookableUnit;
 import com.dusanbranovic.bookme.models.Property;
 import com.dusanbranovic.bookme.models.PropertyImage;
@@ -9,6 +11,7 @@ import com.dusanbranovic.bookme.repository.BookableUnitRepository;
 import com.dusanbranovic.bookme.repository.PropertyImageRepository;
 import com.dusanbranovic.bookme.repository.PropertyRepository;
 import com.dusanbranovic.bookme.repository.UnitImageRepository;
+import org.apache.tika.Tika;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -37,12 +40,17 @@ public class S3Service {
 
     private static final Logger log = LoggerFactory.getLogger(S3Service.class);
 
+    private static final Tika tika = new Tika();
+
+
     @Value("${aws.s3.bucketName}")
     private String bucketName;
 
+
     public S3Service(S3Client s3Client,
                      PropertyRepository propertyRepository,
-                     BookableUnitRepository bookableUnitRepository, UnitImageRepository unitImageRepository,
+                     BookableUnitRepository bookableUnitRepository,
+                     UnitImageRepository unitImageRepository,
                      PropertyImageRepository propertyImageRepository
     ) {
         this.s3Client = s3Client;
@@ -54,8 +62,17 @@ public class S3Service {
 
     public String uploadPropertyImage(Long pid, MultipartFile file){
 
+
+        if(file.isEmpty()){
+            log.error("File is empty");
+            throw new InvalidFileTypeException("File is empty");
+        }
+
         Property property = propertyRepository.findById(pid)
-                .orElseThrow(() -> new EntityNotFoundException("Property with id " + pid + " not found"));
+                .orElseThrow(() -> {
+                    log.error("Property not found");
+                    return new EntityNotFoundException("Property with id " + pid + " not found");
+                });
 
         log.info("Property successfully fetched");
 
@@ -69,6 +86,12 @@ public class S3Service {
         String key = "properties/" + pid + "/" + UUID.randomUUID() + fileExtension;
 
         try{
+            String detectedType = tika.detect(file.getInputStream());
+
+            if(!detectedType.startsWith("image/")){
+                throw new InvalidFileTypeException("Only image files are allowed");
+            }
+
             PutObjectRequest putObjectRequest = PutObjectRequest.
                     builder()
                     .bucket(bucketName)
@@ -107,31 +130,49 @@ public class S3Service {
 
             propertyImages.add(propertyImage);
 
+            log.info("Image successfully added to property");
+
             return url;
         } catch (IOException e) {
             log.error("S3 Upload failed for property {}", pid, e);
-            throw new RuntimeException("Cloud storage upload failed", e);
+            throw new S3UploadException("Cloud storage upload failed");
         }
 
     }
 
     public String uploadUnitImage(Long uid, MultipartFile file){
 
+        if(file.isEmpty()){
+            log.error("File is empty");
+            throw new InvalidFileTypeException("File is empty");
+        }
+
         BookableUnit bookableUnit = bookableUnitRepository.findById(uid)
-                .orElseThrow(() -> new EntityNotFoundException("Unit with id " + uid + " not found"));
+                .orElseThrow(() -> {
+                    log.error("Unit not found");
+                    return new EntityNotFoundException("Unit with id " + uid + " not found");
+                });
 
         log.info("Property successfully fetched");
 
         String originalFileName = file.getOriginalFilename();
         String fileExtension = "";
 
-        if(originalFileName != null || originalFileName.contains(".")){
+        if(originalFileName != null && originalFileName.contains(".")){
             fileExtension = originalFileName.substring(originalFileName.indexOf("."));
         }
 
         String key = "units/" + uid + "/" + UUID.randomUUID()  + fileExtension;
 
         try{
+            String detectedType = tika.detect(file.getInputStream());
+
+            if(!detectedType.startsWith("image/")){
+                throw new InvalidFileTypeException("Only image files are allowed");
+            }
+
+
+
             PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                     .bucket(bucketName)
                     .key(key)
@@ -166,12 +207,13 @@ public class S3Service {
             unitImageRepository.save(unitImage);
 
             unitImages.add(unitImage);
+            log.info("Image successfully added to unit");
 
             return url;
 
         } catch (IOException e) {
             log.error("S3 Upload failed for property {}", uid, e);
-            throw new RuntimeException("Cloud storage upload failed", e);
+            throw new S3UploadException("Cloud storage upload failed");
         }
 
     }

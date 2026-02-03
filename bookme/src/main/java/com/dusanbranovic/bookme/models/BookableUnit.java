@@ -18,13 +18,13 @@ public class BookableUnit {
     private Property property;
 
     @OneToMany(mappedBy = "bookableUnit", cascade = CascadeType.ALL)
-    private List<PeriodPrice> periodPriceList = new ArrayList<>();;
+    private List<PeriodPrice> periodPriceList = new ArrayList<>();
 
     @OneToMany(mappedBy = "bookableUnit", cascade = CascadeType.ALL)
     private List<Addon> addonList;
 
     @OneToMany(mappedBy = "bookableUnit", cascade = CascadeType.ALL)
-    private List<Booking> bookings = new ArrayList<>();;
+    private List<Booking> bookings = new ArrayList<>();
 
     @OneToMany(mappedBy = "bookableUnit")
     private List<UnitFascilityMapping> unitFascilityMappings;
