@@ -72,7 +72,7 @@ public class PropertyService {
     }
 
     public List<PropertyDTO> getAll() {
-
+        log.info("Propertes successfully fetched");
         return propertyRepository.findAll()
                 .stream()
                 .map(propertyMapper::toDTO)
@@ -245,4 +245,16 @@ public class PropertyService {
     }
 
 
+    public List<PropertyDTO> getPropertiesFromOwner(Long userID) {
+        User owner = userRepository.findById(userID)
+                .orElseThrow(() ->{
+                            log.error("User not found");
+                            return new EntityNotFoundException("User with " + userID + " ID not found");
+                        }
+                );
+        return owner.getProperties()
+                .stream()
+                .map(propertyMapper::toDTO)
+                .collect(Collectors.toList());
+    }
 }

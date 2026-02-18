@@ -1,5 +1,6 @@
 package com.dusanbranovic.bookme.controllers;
 
+import com.dusanbranovic.bookme.dto.responses.PropertyDTO;
 import com.dusanbranovic.bookme.dto.responses.UserDTO;
 
 import com.dusanbranovic.bookme.service.BookingService;
@@ -16,17 +17,23 @@ public class UserController {
 
     private final UserService userService;
     private final PropertyService propertyService;
-    private final BookingService bookingService;
 
-    public UserController(UserService userService, PropertyService propertyService, BookingService bookingService) {
+    public UserController(
+            UserService userService,
+            PropertyService propertyService
+    ) {
         this.userService = userService;
         this.propertyService = propertyService;
-        this.bookingService = bookingService;
     }
 
     @GetMapping
     public List<UserDTO> getUsers(){
         return userService.getUsers();
+    }
+
+    @GetMapping("/{userID}/properties")
+    public List<PropertyDTO> getProperties(@PathVariable Long userID){
+        return propertyService.getPropertiesFromOwner(userID);
     }
 
 }

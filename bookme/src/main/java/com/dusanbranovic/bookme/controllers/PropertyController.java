@@ -26,7 +26,9 @@ public class PropertyController {
 
     private static final Logger log = LoggerFactory.getLogger(PropertyController.class);
 
-    public PropertyController(PropertyService propertyService, S3Service s3Service) {
+    public PropertyController(PropertyService propertyService,
+                              S3Service s3Service
+    ) {
         this.propertyService = propertyService;
         this.s3Service = s3Service;
     }
@@ -57,13 +59,15 @@ public class PropertyController {
 
     @PostMapping("/{pid}/add-unit")
     public BookableUnitsResponseDTO addUnit(@PathVariable Long pid,
-                                            @RequestBody BookableUnitRequestDTO dto){
+                                            @RequestBody BookableUnitRequestDTO dto
+    ){
         return propertyService.addUnit(pid, dto);
     }
 
     @PostMapping("/{pid}/reviews")
     public ReviewResponseDTO addReview(@RequestBody ReviewRequestDTO dto,
-                                       @PathVariable Long pid){
+                                       @PathVariable Long pid
+    ){
         return propertyService.addReview(dto,pid);
     }
 
@@ -74,7 +78,8 @@ public class PropertyController {
 
     @PostMapping("/{pid}/images")
     public String uploadPropertyImage(@PathVariable Long pid,
-                                      @RequestParam("image") MultipartFile file){
+                                      @RequestParam("image") MultipartFile file
+    ){
         return s3Service.uploadPropertyImage(pid, file);
     }
 

@@ -10,6 +10,12 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -27,10 +33,12 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http){
         return http.csrf(AbstractHttpConfigurer::disable)
+                .cors(cors -> cors.configurationSource(cors()))
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/auth/**").permitAll()
 
                         .requestMatchers(HttpMethod.GET, "/api/properties/**").hasAnyAuthority("ADMIN","OWNER","USER")
+
 
                         .requestMatchers(HttpMethod.POST,"/api/properties").hasAnyAuthority("ADMIN","OWNER")
 
@@ -49,6 +57,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/units/*/addons").hasAnyAuthority("ADMIN","OWNER")
                         .requestMatchers(HttpMethod.POST, "/api/units/*/book").hasAnyAuthority("USER")
 
+                        .requestMatchers(HttpMethod.GET, "/api/fascilities").hasAnyAuthority("ADMIN","OWNER","USER")
                         .requestMatchers(HttpMethod.POST, "/api/fascilities").hasAnyAuthority("ADMIN")
 
                         .requestMatchers(HttpMethod.POST, "/api/unit-fascilities").hasAnyAuthority("ADMIN")
@@ -56,6 +65,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/addons").hasAnyAuthority("ADMIN","OWNER","USER")
                         .requestMatchers(HttpMethod.POST, "/api/addons").hasAnyAuthority("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/addons/*/add-price").hasAnyAuthority("ADMIN","OWNER")
+
+                        .requestMatchers(HttpMethod.GET, "/api/users/*/properties").hasAnyAuthority("OWNER")
+
                 )
 
 
@@ -68,5 +80,17 @@ public class SecurityConfig {
                 .authenticationProvider(authenticationProvider)
                 .addFilterAfter(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
+    }
+
+    @Bean
+    CorsConfigurationSource cors() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH"));
+        configuration.setAllowedOriginPatterns(List.of("*"));
+        configuration.setAllowedHeaders(List.of("*"));
+        configuration.setAllowCredentials(true);
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 }
