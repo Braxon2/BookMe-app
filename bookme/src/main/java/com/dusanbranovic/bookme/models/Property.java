@@ -21,10 +21,10 @@ public class Property {
     private PropertyType propertyType;
 
     @OneToMany(mappedBy = "property", cascade = CascadeType.ALL)
-    private List<BookableUnit> units = new ArrayList<>();;
+    private List<BookableUnit> units = new ArrayList<>();
 
     @OneToMany(mappedBy = "property", cascade = CascadeType.ALL)
-    private List<PropertyFacility> propertyFacilities = new ArrayList<>();;
+    private List<PropertyFacility> propertyFacilities = new ArrayList<>();
 
     @OneToMany(mappedBy = "property")
     private List<ContactPerson> contacts;
@@ -33,7 +33,7 @@ public class Property {
     private List<Review> reviews = new ArrayList<>();
 
     @OneToMany(mappedBy = "property", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PropertyImage> images;
+    private List<PropertyImage> images = new ArrayList<>();
 
 
     private String name;
