@@ -153,13 +153,13 @@ public class S3Service {
                     return new EntityNotFoundException("Unit with id " + uid + " not found");
                 });
 
-        log.info("Property successfully fetched");
+        log.info("Unit successfully fetched");
 
         String originalFileName = file.getOriginalFilename();
         String fileExtension = "";
 
         if(originalFileName != null && originalFileName.contains(".")){
-            fileExtension = originalFileName.substring(originalFileName.indexOf("."));
+            fileExtension = originalFileName.substring(originalFileName.lastIndexOf("."));
         }
 
         String key = "units/" + uid + "/" + UUID.randomUUID()  + fileExtension;
@@ -212,7 +212,7 @@ public class S3Service {
             return url;
 
         } catch (IOException e) {
-            log.error("S3 Upload failed for property {}", uid, e);
+            log.error("S3 Upload failed for unit {}", uid, e);
             throw new S3UploadException("Cloud storage upload failed");
         }
 

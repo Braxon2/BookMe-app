@@ -257,4 +257,18 @@ public class PropertyService {
                 .map(propertyMapper::toDTO)
                 .collect(Collectors.toList());
     }
+
+    public List<String> getPropertyImages(Long pid) {
+        Property property = propertyRepository.findById(pid).orElseThrow(() ->{
+            log.error("Property not found");
+            return new EntityNotFoundException("Property with id " + pid + " not found");
+        });
+
+        log.info("Property images successfully fetched");
+
+        return property.getImages().
+                stream()
+                .map(PropertyImage::getUrl)
+                .collect(Collectors.toList());
+    }
 }
