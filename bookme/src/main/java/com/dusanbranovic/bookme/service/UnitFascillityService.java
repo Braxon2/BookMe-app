@@ -7,7 +7,9 @@ import com.dusanbranovic.bookme.models.UnitFascillity;
 import com.dusanbranovic.bookme.repository.UnitFascilityRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class UnitFascillityService {
@@ -28,5 +30,14 @@ public class UnitFascillityService {
 
         unitFascilityRepository.save(unitFascillity);
         return new UnitFascilityResponseDTO(unitFascillity.getId(),unitFascillity.getName());
+    }
+
+    public List<UnitFascilityResponseDTO> getUnitFasilities() {
+        return unitFascilityRepository.findAll()
+                .stream()
+                .map((uf)->
+                        new UnitFascilityResponseDTO(uf.getId(),uf.getName())
+                )
+                .collect(Collectors.toList());
     }
 }

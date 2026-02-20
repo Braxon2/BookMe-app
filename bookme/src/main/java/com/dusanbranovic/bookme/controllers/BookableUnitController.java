@@ -1,13 +1,11 @@
 package com.dusanbranovic.bookme.controllers;
 
 
+import com.dusanbranovic.bookme.dto.requests.AddFacilitiesRequestDTO;
 import com.dusanbranovic.bookme.dto.requests.AddonRequestDTO;
 import com.dusanbranovic.bookme.dto.requests.BookingRequestDTO;
-import com.dusanbranovic.bookme.dto.responses.AddonResponseDTO;
-import com.dusanbranovic.bookme.dto.responses.BookableUnitCardDTO;
-import com.dusanbranovic.bookme.dto.responses.BookingResponseDTO;
+import com.dusanbranovic.bookme.dto.responses.*;
 import com.dusanbranovic.bookme.dto.requests.PeriodPriceRequestDTO;
-import com.dusanbranovic.bookme.dto.responses.PeriodPriceResponseDTO;
 import com.dusanbranovic.bookme.service.AddonService;
 import com.dusanbranovic.bookme.service.BookableUnitService;
 import com.dusanbranovic.bookme.service.BookingService;
@@ -64,11 +62,11 @@ public class BookableUnitController {
     }
 
     @PostMapping("/{unitId}/addons")
-    public AddonResponseDTO addAddon(
+    public AddonResponseDTO addAddonToUnit(
             @PathVariable Long unitId,
             @RequestBody AddonRequestDTO dto
     ){
-        return addonService.addAddon(unitId,dto);
+        return addonService.addAddonToUnit(unitId,dto);
     }
 
     @PostMapping("/{uid}/images")
@@ -91,5 +89,15 @@ public class BookableUnitController {
     ){
         return bookableUnitService.searchUnits(city, country, adults, kids, startDate, endDate);
     }
+
+    @PostMapping("/{unitId}/add-unit-facilities")
+    public BookableUnitFacilitiesResponseDTO addFacilitiesToUnit(
+            @PathVariable Long unitId,
+            @RequestBody AddFacilitiesRequestDTO dto) {
+
+        return bookableUnitService.addFacilitiesToUnit(unitId, dto);
+
+    }
+
 
 }

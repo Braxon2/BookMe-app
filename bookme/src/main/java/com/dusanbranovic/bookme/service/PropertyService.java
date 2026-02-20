@@ -271,4 +271,27 @@ public class PropertyService {
                 .map(PropertyImage::getUrl)
                 .collect(Collectors.toList());
     }
+
+    public String getThumbnail(Long pid) {
+        Property property = propertyRepository.findById(pid).orElseThrow(() ->{
+            log.error("Property not found");
+            return new EntityNotFoundException("Property with id " + pid + " not found");
+        });
+
+        String thumbnailUrl =  property.getImages().
+                stream()
+                .filter(PropertyImage::getPrimary)
+                .findFirst()
+                .map(PropertyImage::getUrl)
+                .orElse(null);
+
+
+        if (thumbnailUrl != null) {
+            log.info("Property thumbnail image successfully fetched" + thumbnailUrl);
+        } else {
+            log.warn("No primary image found for property id: {}", pid);
+        }
+
+        return thumbnailUrl;
+    }
 }

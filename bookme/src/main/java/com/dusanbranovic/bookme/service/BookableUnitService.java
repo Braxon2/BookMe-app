@@ -1,17 +1,19 @@
 package com.dusanbranovic.bookme.service;
 
+import com.dusanbranovic.bookme.dto.requests.AddFacilitiesRequestDTO;
 import com.dusanbranovic.bookme.dto.requests.PeriodPriceRequestDTO;
 import com.dusanbranovic.bookme.dto.responses.BookableUnitCardDTO;
+import com.dusanbranovic.bookme.dto.responses.BookableUnitFacilitiesResponseDTO;
 import com.dusanbranovic.bookme.dto.responses.PeriodPriceResponseDTO;
+import com.dusanbranovic.bookme.dto.responses.UnitFascilityResponseDTO;
 import com.dusanbranovic.bookme.exceptions.EntityNotFoundException;
 import com.dusanbranovic.bookme.mappers.BookableUnitMapper;
 import com.dusanbranovic.bookme.mappers.PeriodPriceMapper;
-import com.dusanbranovic.bookme.models.BookableUnit;
-import com.dusanbranovic.bookme.models.PeriodPrice;
-import com.dusanbranovic.bookme.models.PropertyImage;
-import com.dusanbranovic.bookme.models.UnitImage;
+import com.dusanbranovic.bookme.models.*;
 import com.dusanbranovic.bookme.repository.BookableUnitRepository;
 import com.dusanbranovic.bookme.repository.PeriodPriceRepository;
+import com.dusanbranovic.bookme.repository.UnitFascilityRepository;
+import com.dusanbranovic.bookme.repository.UnitFascillityMappingRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -20,9 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,6 +30,8 @@ public class BookableUnitService {
 
     private final BookableUnitRepository bookableUnitRepository;
     private final PeriodPriceRepository periodPriceRepository;
+    private final UnitFascilityRepository unitFascilityRepository;
+    private final UnitFascillityMappingRepository unitFascillityMappingRepository;
 
     private final BookableUnitMapper bookableUnitMapper;
     private final PeriodPriceMapper periodPriceMapper;
@@ -39,11 +41,15 @@ public class BookableUnitService {
     public BookableUnitService(
             BookableUnitRepository bookableUnitRepository,
             PeriodPriceRepository periodPriceRepository,
+            UnitFascilityRepository unitFascilityRepository,
+            UnitFascillityMappingRepository unitFascillityMappingRepository,
             BookableUnitMapper bookableUnitMapper,
             PeriodPriceMapper periodPriceMapper
     ) {
         this.bookableUnitRepository = bookableUnitRepository;
         this.periodPriceRepository = periodPriceRepository;
+        this.unitFascilityRepository = unitFascilityRepository;
+        this.unitFascillityMappingRepository = unitFascillityMappingRepository;
         this.bookableUnitMapper = bookableUnitMapper;
         this.periodPriceMapper = periodPriceMapper;
     }
@@ -86,6 +92,7 @@ public class BookableUnitService {
                 collect(Collectors.toList()
                 );
     }
+
 
     @Transactional(readOnly = true)
     public List<BookableUnitCardDTO> searchUnits(
@@ -160,5 +167,54 @@ public class BookableUnitService {
             totalPrice += priceForDay.getPricePerNight();
         }
         return totalPrice;
+    }
+
+    @Transactional
+    public BookableUnitFacilitiesResponseDTO addFacilitiesToUnit(
+            Long unitId,
+            AddFacilitiesRequestDTO dto
+    ) {
+
+
+        BookableUnit unit = bookableUnitRepository.findById(unitId).orElseThrow(() ->{
+            log.error("Unit with id {} not found", unitId); // Better logging practice
+            return new EntityNotFoundException("Unit with id " + unitId + " not found");
+        });
+
+
+        List<Long> distinctRequestedIds = dto.facilityIds().stream().distinct().toList();
+
+
+        List<UnitFascillity> unitFascillityList = unitFascilityRepository.findAllById(distinctRequestedIds);
+
+        if (unitFascillityList.size() != distinctRequestedIds.size()) {
+            throw new EntityNotFoundException("One or more facilities not found in the database");
+        }
+
+        List<Long> existingFacilityIds = unit.getUnitFascilityMappings().stream()
+                .map(mapping -> mapping.getUnitFascillity().getId())
+                .toList();
+
+
+        List<UnitFascilityMapping> newMappings = unitFascillityList.stream()
+                .filter(uf -> !existingFacilityIds.contains(uf.getId()))
+                .map(uf -> new UnitFascilityMapping(unit, uf))
+                .toList();
+
+        if (!newMappings.isEmpty()) {
+            unitFascillityMappingRepository.saveAll(newMappings);
+        }
+
+        List<UnitFascilityResponseDTO> allFacilitiesDto = new ArrayList<>();
+
+        unit.getUnitFascilityMappings().forEach(mapping ->
+                allFacilitiesDto.add(new UnitFascilityResponseDTO(mapping.getUnitFascillity().getId(), mapping.getUnitFascillity().getName()))
+        );
+
+        newMappings.forEach(mapping ->
+                allFacilitiesDto.add(new UnitFascilityResponseDTO(mapping.getUnitFascillity().getId(), mapping.getUnitFascillity().getName()))
+        );
+
+        return new BookableUnitFacilitiesResponseDTO(unitId, allFacilitiesDto);
     }
 }

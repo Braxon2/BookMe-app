@@ -16,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/properties")
@@ -81,6 +82,18 @@ public class PropertyController {
                                       @RequestParam("image") MultipartFile file
     ){
         return s3Service.uploadPropertyImage(pid, file);
+    }
+
+    @GetMapping("/{pid}/images")
+    public List<String> getPropertyImages(@PathVariable Long pid
+    ){
+        return propertyService.getPropertyImages(pid);
+    }
+
+    @GetMapping("/{pid}/thumbnail")
+    public Map<String, String> getThumbnail(@PathVariable Long pid){
+        String url = propertyService.getThumbnail(pid);
+        return Map.of("url", url);
     }
 
 

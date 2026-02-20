@@ -47,6 +47,7 @@ public class SecurityConfig {
 
                         .requestMatchers(HttpMethod.POST, "/api/properties/*/add-unit").hasAnyAuthority("ADMIN", "OWNER")
                         .requestMatchers(HttpMethod.GET, "/api/properties/*/images").hasAnyAuthority("ADMIN", "OWNER")
+                        .requestMatchers(HttpMethod.GET, "/api/properties/*/thumbnail").hasAnyAuthority("ADMIN", "OWNER","USER")
                         .requestMatchers(HttpMethod.POST, "/api/properties/*/images").hasAnyAuthority("ADMIN", "OWNER")
                         .requestMatchers(HttpMethod.GET, "/api/properties/*/reviews").hasAnyAuthority("ADMIN","OWNER","USER")
                         .requestMatchers(HttpMethod.POST, "/api/properties/*/reviews").hasAnyAuthority("USER")
@@ -54,12 +55,16 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/units/search").hasAnyAuthority("ADMIN","OWNER","USER")
                         .requestMatchers(HttpMethod.GET, "/api/units/**").hasAnyAuthority("ADMIN","OWNER","USER")
                         .requestMatchers(HttpMethod.POST, "/api/units/*/add-price").hasAnyAuthority("ADMIN","OWNER")
+                        .requestMatchers(HttpMethod.POST, "/api/units/*/add-unit-facilities").hasAnyAuthority("ADMIN","OWNER")
                         .requestMatchers(HttpMethod.POST, "/api/units/*/images").hasAnyAuthority("ADMIN","OWNER")
                         .requestMatchers(HttpMethod.POST, "/api/units/*/addons").hasAnyAuthority("ADMIN","OWNER")
                         .requestMatchers(HttpMethod.POST, "/api/units/*/book").hasAnyAuthority("USER")
 
                         .requestMatchers(HttpMethod.GET, "/api/fascilities").hasAnyAuthority("ADMIN","OWNER","USER")
                         .requestMatchers(HttpMethod.POST, "/api/fascilities").hasAnyAuthority("ADMIN")
+
+                        .requestMatchers(HttpMethod.GET, "/api/unit-fascilities").hasAnyAuthority("ADMIN","OWNER","USER")
+                        .requestMatchers(HttpMethod.POST, "/api/unit-fascilities").hasAnyAuthority("ADMIN")
 
                         .requestMatchers(HttpMethod.POST, "/api/unit-fascilities").hasAnyAuthority("ADMIN")
 
