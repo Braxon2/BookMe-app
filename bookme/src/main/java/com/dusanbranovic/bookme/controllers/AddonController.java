@@ -1,6 +1,7 @@
 package com.dusanbranovic.bookme.controllers;
 
 import com.dusanbranovic.bookme.dto.requests.AddonRequestDTO;
+import com.dusanbranovic.bookme.dto.requests.AddonsRequestDTO;
 import com.dusanbranovic.bookme.dto.requests.PeriodPriceAddonRequestDTO;
 import com.dusanbranovic.bookme.dto.responses.AddonPeriodPriceResponseDTO;
 import com.dusanbranovic.bookme.dto.responses.AddonResponseDTO;
@@ -24,9 +25,15 @@ public class AddonController {
         return addonService.getAllAddons();
     }
 
+    @PostMapping
+    public AddonResponseDTO addAddon(@RequestBody AddonRequestDTO dto){
+        return addonService.addAddon(dto);
+    }
+
     @PostMapping("/{aid}/add-price")
-    public AddonPeriodPriceResponseDTO addAddonPeriodPrice(@RequestBody PeriodPriceAddonRequestDTO dto,
-                                                           @PathVariable Long aid
+    public AddonPeriodPriceResponseDTO addAddonPeriodPrice(
+            @RequestBody PeriodPriceAddonRequestDTO dto,
+            @PathVariable Long aid
     ){
         return addonService.addAddonPeriodPrice(aid, dto);
     }

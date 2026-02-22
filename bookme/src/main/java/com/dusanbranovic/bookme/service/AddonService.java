@@ -1,6 +1,7 @@
 package com.dusanbranovic.bookme.service;
 
 import com.dusanbranovic.bookme.dto.requests.AddonRequestDTO;
+import com.dusanbranovic.bookme.dto.requests.AddonsRequestDTO;
 import com.dusanbranovic.bookme.dto.requests.PeriodPriceAddonRequestDTO;
 import com.dusanbranovic.bookme.dto.responses.AddonPeriodPriceResponseDTO;
 import com.dusanbranovic.bookme.dto.responses.AddonResponseDTO;
@@ -36,7 +37,7 @@ public class AddonService {
         this.periodPriceAddonRepository = periodPriceAddonRepository;
     }
 
-    public AddonResponseDTO addAddon(Long unitId, AddonRequestDTO dto) {
+    public AddonResponseDTO addAddonToUnit(Long unitId, AddonRequestDTO dto) {
 
         Optional<BookableUnit> optionalBookableUnit = bookableUnitRepository.findById(unitId);
 
@@ -106,6 +107,22 @@ public class AddonService {
                 periodPriceAddon.getEndDate(),
                 new AddonResponseDTO(addon.getId(), addon.getName(), addon.isPerNight())
         );
+
+    }
+
+    public AddonResponseDTO addAddon(AddonRequestDTO dto) {
+        Optional<Addon> optionalAddon = addonRepository.findByName(dto.name());
+
+        if(optionalAddon.isPresent()) {
+            throw new EntityAlreadyExistsExcpetion("Addon with name " + dto.name() + " already exist");
+        }
+
+        Addon addon = new Addon();
+        addon.setName(dto.name());
+
+        Addon savedAddon = addonRepository.save(addon);
+        return new AddonResponseDTO(savedAddon.getId(), savedAddon.getName(), false);
+
 
     }
 }
