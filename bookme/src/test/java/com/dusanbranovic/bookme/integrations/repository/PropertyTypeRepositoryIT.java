@@ -2,6 +2,7 @@ package com.dusanbranovic.bookme.integrations.repository;
 
 import com.dusanbranovic.bookme.models.PropertyType;
 import com.dusanbranovic.bookme.repository.PropertyTypeRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,10 +16,19 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 @ActiveProfiles("test")
 @Transactional
-class PropertyTypeRepositoryTest {
+class PropertyTypeRepositoryIT {
 
     @Autowired
     private PropertyTypeRepository propertyTypeRepository;
+
+    private PropertyType type;
+
+    @BeforeEach
+    public void setup(){
+        type = new PropertyType();
+        type.setName("Hotel");
+        propertyTypeRepository.save(type);
+    }
 
     @Test
     @DisplayName("Testing if the database is saving new property type")

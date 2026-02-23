@@ -5,6 +5,7 @@ import com.dusanbranovic.bookme.exceptions.EntityAlreadyExistsExcpetion;
 import com.dusanbranovic.bookme.models.PropertyType;
 import com.dusanbranovic.bookme.repository.PropertyTypeRepository;
 import com.dusanbranovic.bookme.service.PropertyTypeService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,11 @@ public class PropertyTypeServiceIT {
 
     @Autowired
     private PropertyTypeService propertyTypeService;
+
+    @BeforeEach
+    public void setup(){
+        propertyTypeRepository.save(new PropertyType("Hotel"));
+    }
 
     @Test
     @DisplayName("Should sucessfully save property type")

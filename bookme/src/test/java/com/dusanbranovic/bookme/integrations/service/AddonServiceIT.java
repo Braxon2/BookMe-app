@@ -16,6 +16,7 @@ import com.dusanbranovic.bookme.repository.BookableUnitRepository;
 import com.dusanbranovic.bookme.repository.PropertyRepository;
 import com.dusanbranovic.bookme.repository.PropertyTypeRepository;
 import com.dusanbranovic.bookme.service.AddonService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,9 +47,18 @@ public class AddonServiceIT {
     @Autowired
     private AddonRepository addonRepository;
 
+    private Addon addon;
+
+    @BeforeEach
+    public void setup(){
+        addon = new Addon();
+        addon.setName("WiFi");
+        addonRepository.save(addon);
+    }
+
     @Test
     @DisplayName("Should sucessfully save addon")
-    void addAddon(){
+    void addAddonToUnit(){
         PropertyType type = new PropertyType("Beach House");
         propertyTypeRepository.save(type);
 
@@ -66,7 +76,7 @@ public class AddonServiceIT {
 
         AddonRequestDTO dto = new AddonRequestDTO("Brakfast",true);
 
-        AddonResponseDTO result = addonService.addAddon(unit.getId(),dto);
+        AddonResponseDTO result = addonService.addAddonToUnit(unit.getId(),dto);
 
         assertNotNull(result);
         assertEquals(dto.name(),result.name());
@@ -74,7 +84,7 @@ public class AddonServiceIT {
 
     @Test
     @DisplayName("Should trhow EntityAlreadyExistsExcpetion")
-    void addAddon_AddonAlreadyExist(){
+    void addAddon_AddonToUnitAlreadyExist(){
         PropertyType type = new PropertyType("Beach House");
         propertyTypeRepository.save(type);
 
@@ -92,12 +102,12 @@ public class AddonServiceIT {
 
         AddonRequestDTO dto = new AddonRequestDTO("WiFi",true);
 
-        assertThrows(EntityAlreadyExistsExcpetion.class,() -> addonService.addAddon(unit.getId(),dto));
+        assertThrows(EntityAlreadyExistsExcpetion.class,() -> addonService.addAddonToUnit(unit.getId(),dto));
     }
 
     @Test
     @DisplayName("Should thorw EntityNotFound for Unit")
-    void addAddon_UnitNotFound(){
+    void addAddon_ToUnit_UnitNotFound(){
         PropertyType type = new PropertyType("Beach House");
         propertyTypeRepository.save(type);
 
@@ -115,7 +125,7 @@ public class AddonServiceIT {
 
         AddonRequestDTO dto = new AddonRequestDTO("Brakfast",true);
 
-        assertThrows(EntityNotFoundException.class,() -> addonService.addAddon(0L,dto));
+        assertThrows(EntityNotFoundException.class,() -> addonService.addAddonToUnit(0L,dto));
     }
 
     @Test

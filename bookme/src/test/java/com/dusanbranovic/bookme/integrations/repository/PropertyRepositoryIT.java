@@ -1,7 +1,13 @@
 package com.dusanbranovic.bookme.integrations.repository;
 
 import com.dusanbranovic.bookme.models.Property;
+import com.dusanbranovic.bookme.models.PropertyType;
+import com.dusanbranovic.bookme.models.User;
+import com.dusanbranovic.bookme.models.UserType;
 import com.dusanbranovic.bookme.repository.PropertyRepository;
+import com.dusanbranovic.bookme.repository.PropertyTypeRepository;
+import com.dusanbranovic.bookme.repository.UserRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,15 +21,41 @@ import static org.junit.jupiter.api.Assertions.*;
 @ActiveProfiles("test")
 @SpringBootTest
 @Transactional
-class PropertyRepositoryTest {
+class PropertyRepositoryIT {
 
     @Autowired
     private PropertyRepository propertyRepository;
 
+    @Autowired
+    private PropertyTypeRepository propertyTypeRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    private PropertyType type;
+
+    private User owner;
+
+    private Property property;
+
+    @BeforeEach
+    void setUp(){
+        type = new PropertyType("Cologne");
+        propertyTypeRepository.save(type);
+
+        owner = new User();
+        owner.setRole(UserType.OWNER);
+        userRepository.save(owner);
+
+        property = new Property();
+        propertyRepository.save(property);
+
+    }
+
     @Test
     @DisplayName("Test if the DB returns property correctly")
     void findById(){
-        Long id = 1L;
+        Long id = property.getId();
         Optional<Property> optionalProperty = propertyRepository.findById(id);
 
         assertTrue(optionalProperty.isPresent());
@@ -35,8 +67,8 @@ class PropertyRepositoryTest {
     @Test
     void saveTest(){
         Property property = new Property();
-//        property.setPropertyType(type1);
-//        property.setOwner(owner1);
+        property.setPropertyType(type);
+        property.setOwner(owner);
         property.setName("Sunny Hotel");
         property.setCity("Belgrade");
         property.setCountry("Serbia");
@@ -45,6 +77,12 @@ class PropertyRepositoryTest {
         property.setDescription("Sunny day in Philadelphia but on Serbian");
         property.setImportantInfo("No smoking...");
 
+        Property savedProperty = propertyRepository.save(property);
+
+        Optional<Property> optionalProperty = propertyRepository.findById(savedProperty.getId());
+
+        assertTrue(optionalProperty.isPresent());
+        assertEquals(savedProperty.getId(), optionalProperty.get().getId());
 
     }
 

@@ -51,6 +51,7 @@ public class PropertyServiceIT {
     @Autowired
     private ReviewRepository reviewRepository;
 
+
     @Autowired
     private FasiliityRepository fasiliityRepository;
 
@@ -69,10 +70,16 @@ public class PropertyServiceIT {
 
     private BookableUnit unit;
 
+    private Property property;
+
+    private Fascillity fascillity1;
+    private Fascillity fascillity2;
+
 
 
     @BeforeEach
     public void setUp() {
+
         owner = new User();
         owner.setRole(UserType.OWNER);
         owner.setEmail("owner4@test.com");
@@ -95,8 +102,19 @@ public class PropertyServiceIT {
         type = new PropertyType();
         type.setName("Beach house");
 
+        fascillity1 = new Fascillity("Room Service");
+        fascillity2 = new Fascillity("Fitness center");
+
+        fasiliityRepository.save(fascillity1);
+        fasiliityRepository.save(fascillity2);
+
+        property = new Property();
+        property.setOwner(owner);
+        property.setPropertyType(type);
+
         propertyTypeRepository.save(type);
         userRepository.save(owner);
+        propertyRepository.save(property);
     }
 
     @Test
@@ -110,7 +128,7 @@ public class PropertyServiceIT {
     @Test
     @DisplayName("Should return a Property")
     void getProperty(){
-        PropertyDTO dto = propertyService.getProperty(1L);
+        PropertyDTO dto = propertyService.getProperty(property.getId());
 
         assertNotNull(dto);
     }
@@ -128,7 +146,7 @@ public class PropertyServiceIT {
         String email = "owner1@test.com";
 
         PropertyRequestDTO dto = new PropertyRequestDTO(
-                new PropertyTypeDTO(1L, "Hotel"),
+                new PropertyTypeDTO(type.getId(), type.getName()),
                 "Crispy Cream",
                 "Some description",
                 "Serbia",
@@ -137,8 +155,8 @@ public class PropertyServiceIT {
                 "House rules",
                 "Info",
                 List.of(
-                        new FascilityResponseDTO(1L, "Room Service"),
-                        new FascilityResponseDTO(2L, "Fitness Center")
+                        new FascilityResponseDTO(fascillity1.getId(), fascillity1.getName()),
+                        new FascilityResponseDTO(fascillity2.getId(), fascillity2.getName())
                 )
         );
 
@@ -169,8 +187,8 @@ public class PropertyServiceIT {
                 "House rules",
                 "Info",
                 List.of(
-                        new FascilityResponseDTO(1L, "Room Service"),
-                        new FascilityResponseDTO(2L, "Fitness Center")
+                        new FascilityResponseDTO(fascillity1.getId(), fascillity1.getName()),
+                        new FascilityResponseDTO(fascillity2.getId(), fascillity2.getName())
                 )
         );
 
@@ -193,8 +211,8 @@ public class PropertyServiceIT {
                 "House rules",
                 "Info",
                 List.of(
-                        new FascilityResponseDTO(1L, "Room Service"),
-                        new FascilityResponseDTO(2L, "Fitness Center")
+                        new FascilityResponseDTO(fascillity1.getId(), fascillity1.getName()),
+                        new FascilityResponseDTO(fascillity2.getId(), fascillity2.getName())
                 )
         );
 
@@ -218,8 +236,8 @@ public class PropertyServiceIT {
                 "House rules",
                 "Info",
                 List.of(
-                        new FascilityResponseDTO(1L, "Room Service"),
-                        new FascilityResponseDTO(6L, "Fitness Center")
+                        new FascilityResponseDTO(-4L, fascillity1.getName()),
+                        new FascilityResponseDTO(-9L, fascillity2.getName())
                 )
         );
 
@@ -230,7 +248,7 @@ public class PropertyServiceIT {
     @Test
     @DisplayName("Should successfully save a unit to a property")
     void getAllUnitsFromProperty(){
-        List<BookableUnitsResponseDTO> dto = propertyService.getAllUnits(1L);
+        List<BookableUnitsResponseDTO> dto = propertyService.getAllUnits(property.getId());
         assertNotNull(dto);
     }
 
@@ -243,7 +261,7 @@ public class PropertyServiceIT {
     @Test
     @DisplayName("Should successfully save a unit to a property")
     void addUnit(){
-        Optional<Property> optionalProperty = propertyRepository.findById(1L);
+        Optional<Property> optionalProperty = propertyRepository.findById(property.getId());
         int numberOfUnits = optionalProperty.get().getUnits().size();
 
         BookableUnitRequestDTO dto = new BookableUnitRequestDTO(
