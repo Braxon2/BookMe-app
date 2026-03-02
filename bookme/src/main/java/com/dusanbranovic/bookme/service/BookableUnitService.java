@@ -101,14 +101,19 @@ public class BookableUnitService {
             int adults,
             int kids,
             LocalDate startDate,
-            LocalDate endDate
+            LocalDate endDate,
+            Double maxPrice,
+            List<Long> propertyFacilities,
+            List<Long> unitFacilities
     ) {
         LocalDateTime checkIn = startDate.atStartOfDay();
         LocalDateTime checkOut = endDate.atStartOfDay();
 
+        List<Long> propFacs = (propertyFacilities != null) ? propertyFacilities : List.of();
+        List<Long> unitFacs = (unitFacilities != null) ? unitFacilities : List.of();
 
         List<BookableUnit> availableUnits = bookableUnitRepository.searchUnitsByCriteria(
-                city, country, adults, kids, checkIn, checkOut
+                city, country, adults, kids, checkIn, checkOut, propFacs, propFacs.size(), unitFacs, unitFacs.size()
         );
 
         List<BookableUnitCardDTO> resultCards = new ArrayList<>();
@@ -118,6 +123,9 @@ public class BookableUnitService {
             try {
                 double totalPrice = calculatePriceForDates(startDate, endDate, unit.getPeriodPriceList());
 
+                if (maxPrice != null && totalPrice > maxPrice) {
+                    continue;
+                }
 
                 String imageUrl = null;
                 List<PropertyImage> propertyImages = unit.getProperty().getImages();
@@ -128,7 +136,7 @@ public class BookableUnitService {
                             .map(PropertyImage::getUrl)
                             .findFirst()
                             .orElse(
-                                    propertyImages.get(0).getUrl()
+                                    propertyImages.getFirst().getUrl()
                             );
                 }
 
@@ -177,7 +185,7 @@ public class BookableUnitService {
 
 
         BookableUnit unit = bookableUnitRepository.findById(unitId).orElseThrow(() ->{
-            log.error("Unit with id {} not found", unitId); // Better logging practice
+            log.error("Unit with id {} not found", unitId);
             return new EntityNotFoundException("Unit with id " + unitId + " not found");
         });
 

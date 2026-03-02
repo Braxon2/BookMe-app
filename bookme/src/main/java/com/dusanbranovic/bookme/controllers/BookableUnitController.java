@@ -85,9 +85,12 @@ public class BookableUnitController {
             @RequestParam int adults,
             @RequestParam(defaultValue = "0") int kids,
             @RequestParam LocalDate startDate,
-            @RequestParam LocalDate endDate
+            @RequestParam LocalDate endDate,
+            @RequestParam(required = false) Double maxPrice,
+            @RequestParam(required = false) List<Long> propertyFacilities,
+            @RequestParam(required = false) List<Long> unitFacilities
     ){
-        return bookableUnitService.searchUnits(city, country, adults, kids, startDate, endDate);
+        return bookableUnitService.searchUnits(city, country, adults, kids, startDate, endDate,maxPrice, propertyFacilities, unitFacilities);
     }
 
     @PostMapping("/{unitId}/add-unit-facilities")
