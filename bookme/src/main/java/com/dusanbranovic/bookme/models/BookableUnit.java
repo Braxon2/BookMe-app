@@ -27,10 +27,10 @@ public class BookableUnit {
     private List<Booking> bookings = new ArrayList<>();
 
     @OneToMany(mappedBy = "bookableUnit")
-    private List<UnitFascilityMapping> unitFascilityMappings;
+    private List<UnitFascilityMapping> unitFascilityMappings = new ArrayList<>();;
 
     @OneToMany(mappedBy = "bookableUnit", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<UnitImage> images;
+    private List<UnitImage> images = new ArrayList<>();;
 
     private int maxCapacity;
     private double squareMeters;

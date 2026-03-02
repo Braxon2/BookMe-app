@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -25,7 +26,7 @@ public class User implements UserDetails {
     private String phoneNumber;
 
     @OneToMany(mappedBy = "owner")
-    private List<Property> properties;
+    private List<Property> properties = new ArrayList<>();;
 
     @OneToMany(mappedBy = "reviewer")
     private List<Review> reviews;

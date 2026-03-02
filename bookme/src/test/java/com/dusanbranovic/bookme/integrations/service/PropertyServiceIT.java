@@ -23,6 +23,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -330,35 +332,125 @@ public class PropertyServiceIT {
         assertEquals(guest.getEmail(), response.reviewer().email());
     }
 
-//    @Test
-//    @DisplayName("Should fetch all reviews for a specific property")
-//    void getReviews() {
-//        Property property = new Property();
-//        property.setOwner(owner);
-//        property.setPropertyType(type);
-//        Property savedProperty = propertyRepository.save(property);
-//
-//        Review r1 = new Review();
-//        r1.setText("Review 1");
-//        r1.setRating(4);
-//        savedProperty.addReview(r1);
-//        reviewRepository.save(r1);
-//
-//        Review r2 = new Review();
-//        r2.setText("Review 2");
-//        r2.setRating(3);
-//        savedProperty.addReview(r2);
-//        reviewRepository.save(r2);
-//
-//        List<ReviewResponseDTO> reviews = propertyService.getReviews(savedProperty.getId());
-//
-//        assertEquals(2, reviews.size());
-//    }
-
     @Test
     @DisplayName("Should throw exception EntityNotFOund for Property")
     void getAllReviewsFromProperty_PropertyNotFound(){
         assertThrows(EntityNotFoundException.class, () -> propertyService.getAllUnits(5L));
+    }
+
+    @Test
+    @DisplayName("Should fetch all reviews for a specific property")
+    void getReviews() {
+
+        User guest = new User();
+        guest.setEmail("guest_reviewer@test.com");
+        guest = userRepository.save(guest);
+
+        Review r1 = new Review();
+        r1.setText("Great stay!");
+        r1.setRating(5);
+        r1.setReviewer(guest);
+        r1.setProperty(property);
+        r1.setCreatedAt(LocalDateTime.now());
+        reviewRepository.save(r1);
+
+        Review r2 = new Review();
+        r2.setText("Good, but noisy.");
+        r2.setRating(3);
+        r2.setReviewer(guest);
+        r2.setProperty(property);
+        r2.setCreatedAt(LocalDateTime.now());
+        reviewRepository.save(r2);
+
+        List<Review> list = new ArrayList<>();
+        list.add(r1);
+        list.add(r2);
+
+        property.setReviews(list);
+        propertyRepository.save(property);
+
+        List<ReviewResponseDTO> reviews = propertyService.getReviews(property.getId());
+
+        assertNotNull(reviews);
+        assertEquals(2, reviews.size());
+    }
+
+    @Test
+    @DisplayName("Should fetch all properties belonging to a specific owner")
+    void getPropertiesFromOwner() {
+        List<PropertyDTO> properties = propertyService.getPropertiesFromOwner(owner.getId());
+
+        assertNotNull(properties);
+        assertFalse(properties.isEmpty());
+        assertEquals(property.getId(), properties.get(1).id());
+    }
+
+    @Test
+    @DisplayName("Should throw Exception when fetching properties for an unknown owner")
+    void getPropertiesFromOwner_UserNotFound() {
+        assertThrows(EntityNotFoundException.class, () -> propertyService.getPropertiesFromOwner(999L));
+    }
+
+    @Test
+    @DisplayName("Should fetch property image URLs")
+    void getPropertyImages() {
+        PropertyImage img1 = new PropertyImage();
+        img1.setUrl("http://example.com/image1.jpg");
+        img1.setProperty(property);
+
+        PropertyImage img2 = new PropertyImage();
+        img2.setUrl("http://example.com/image2.jpg");
+        img2.setProperty(property);
+
+        List<PropertyImage> listImg = new ArrayList<>();
+        listImg.add(img1);
+        listImg.add(img2);
+
+        property.setImages(listImg);
+        propertyRepository.save(property);
+
+        List<String> images = propertyService.getPropertyImages(property.getId());
+
+        assertNotNull(images);
+        assertEquals(2, images.size());
+        assertTrue(images.contains("http://example.com/image1.jpg"));
+    }
+
+    @Test
+    @DisplayName("Should throw Exception when fetching images for an unknown property")
+    void getPropertyImages_PropertyNotFound() {
+        assertThrows(EntityNotFoundException.class, () -> propertyService.getPropertyImages(999L));
+    }
+
+    @Test
+    @DisplayName("Should fetch the primary thumbnail URL for a property")
+    void getThumbnail() {
+        PropertyImage primaryImg = new PropertyImage();
+        primaryImg.setUrl("http://example.com/primary.jpg");
+        primaryImg.setPrimary(true);
+        primaryImg.setProperty(property);
+
+        PropertyImage secondaryImg = new PropertyImage();
+        secondaryImg.setUrl("http://example.com/secondary.jpg");
+        secondaryImg.setPrimary(false);
+        secondaryImg.setProperty(property);
+
+        List<PropertyImage> listImg = new ArrayList<>();
+        listImg.add(primaryImg);
+        listImg.add(secondaryImg);
+        property.setImages(listImg);
+        propertyRepository.save(property);
+
+        String thumbnail = propertyService.getThumbnail(property.getId());
+
+        assertNotNull(thumbnail);
+        assertEquals("http://example.com/primary.jpg", thumbnail);
+    }
+
+    @Test
+    @DisplayName("Should throw Exception when fetching thumbnail for an unknown property")
+    void getThumbnail_PropertyNotFound() {
+        assertThrows(EntityNotFoundException.class, () -> propertyService.getThumbnail(999L));
     }
 
 
