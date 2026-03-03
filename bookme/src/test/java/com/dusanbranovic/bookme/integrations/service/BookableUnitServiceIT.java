@@ -6,10 +6,7 @@ import com.dusanbranovic.bookme.dto.responses.BookableUnitCardDTO;
 import com.dusanbranovic.bookme.dto.responses.BookableUnitFacilitiesResponseDTO;
 import com.dusanbranovic.bookme.dto.responses.PeriodPriceResponseDTO;
 import com.dusanbranovic.bookme.exceptions.EntityNotFoundException;
-import com.dusanbranovic.bookme.models.BookableUnit;
-import com.dusanbranovic.bookme.models.PeriodPrice;
-import com.dusanbranovic.bookme.models.Property;
-import com.dusanbranovic.bookme.models.UnitFascillity;
+import com.dusanbranovic.bookme.models.*;
 import com.dusanbranovic.bookme.repository.*;
 import com.dusanbranovic.bookme.service.BookableUnitService;
 import org.junit.jupiter.api.DisplayName;
@@ -48,7 +45,13 @@ public class BookableUnitServiceIT {
     private PropertyRepository propertyRepository;
 
     @Autowired
-    private UserRepository userRepository;
+    private FasiliityRepository fasiliityRepository;
+
+    @Autowired
+    private UnitFascillityMappingRepository unitFascillityMappingRepository;
+
+    @Autowired
+    private PropertyFascilityRepository propertyFascilityRepository;
 
     @Test
     @DisplayName("Should sucesfully save a period price")
@@ -94,7 +97,10 @@ public class BookableUnitServiceIT {
         price2.setPricePerNight(75.0);
         periodPriceRepository.save(price2);
 
-        testUnit.setPeriodPriceList(List.of(price1, price2));
+        List<PeriodPrice> list = new ArrayList<>();
+        list.add(price1);
+        list.add(price2);
+        testUnit.setPeriodPriceList(list);
         bookableUnitRepository.save(testUnit);
 
         List<PeriodPriceResponseDTO> results = bookableUnitService.getPeriodPrices(testUnit.getId());
@@ -197,5 +203,79 @@ public class BookableUnitServiceIT {
         assertFalse(results.isEmpty());
         assertEquals(unit.getId(), results.getFirst().unitId());
         assertEquals(500.0, results.getFirst().totalPriceForStay());
+    }
+
+    @Test
+    @DisplayName("Should filter units by both Property and Unit facilities")
+    void searchUnits_WithFacilityFilters() {
+
+        Fascillity wifi = fasiliityRepository.save(new Fascillity("WiFi"));
+        Fascillity pool = fasiliityRepository.save(new Fascillity("Pool"));
+
+
+        UnitFascillity ac = unitFascilityRepository.save(new UnitFascillity("AC"));
+        UnitFascillity tv = unitFascilityRepository.save(new UnitFascillity("TV"));
+
+
+        Property matchingProperty = new Property();
+        matchingProperty.setCity("Belgrade");
+        matchingProperty.setCountry("Serbia");
+        matchingProperty = propertyRepository.save(matchingProperty);
+
+
+        propertyFascilityRepository.save(new PropertyFacility(matchingProperty, wifi));
+        propertyFascilityRepository.save(new PropertyFacility(matchingProperty, pool));
+
+        BookableUnit matchingUnit = new BookableUnit();
+        matchingUnit.setProperty(matchingProperty);
+        matchingUnit.setMaxCapacity(5);
+        matchingUnit.setMaxAdultCapacity(3);
+        matchingUnit.setMaxKidsCapacity(2);
+        matchingUnit.setTotalUnits(1);
+        matchingUnit = bookableUnitRepository.save(matchingUnit);
+
+
+        unitFascillityMappingRepository.save(new UnitFascilityMapping(matchingUnit, ac));
+        unitFascillityMappingRepository.save(new UnitFascilityMapping(matchingUnit, tv));
+
+        // Add Pricing for the matching unit
+        PeriodPrice price = new PeriodPrice();
+        price.setBookableUnit(matchingUnit);
+        price.setStartDate(LocalDate.of(2026, 7, 1));
+        price.setEndDate(LocalDate.of(2026, 7, 31));
+        price.setPricePerNight(100.0);
+        periodPriceRepository.save(price);
+        matchingUnit.setPeriodPriceList(new ArrayList<>(List.of(price)));
+
+
+        Property partialProperty = new Property();
+        partialProperty.setCity("Belgrade");
+        partialProperty.setCountry("Serbia");
+        partialProperty = propertyRepository.save(partialProperty);
+        propertyFascilityRepository.save(new PropertyFacility(partialProperty, wifi));
+
+
+        BookableUnit nonMatchingUnit = new BookableUnit();
+        nonMatchingUnit.setProperty(partialProperty);
+        nonMatchingUnit.setMaxCapacity(5);
+        nonMatchingUnit.setMaxAdultCapacity(3);
+        nonMatchingUnit.setMaxKidsCapacity(2);
+        nonMatchingUnit.setTotalUnits(1);
+        bookableUnitRepository.save(nonMatchingUnit);
+
+
+        List<Long> propFacIds = List.of(wifi.getId(), pool.getId());
+        List<Long> unitFacIds = List.of(ac.getId(), tv.getId());
+
+        List<BookableUnitCardDTO> results = bookableUnitService.searchUnits(
+                "Belgrade", "Serbia", 2, 0,
+                LocalDate.of(2026, 7, 10), LocalDate.of(2026, 7, 12),
+                null, propFacIds, unitFacIds
+        );
+
+
+        assertNotNull(results);
+        assertEquals(1, results.size(), "Should only find the unit that has ALL requested facilities");
+        assertEquals(matchingUnit.getId(), results.get(0).unitId());
     }
 }

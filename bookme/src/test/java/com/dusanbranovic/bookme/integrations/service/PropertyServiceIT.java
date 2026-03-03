@@ -90,6 +90,7 @@ public class PropertyServiceIT {
         owner.setPassword(passwordEncoder.encode("password"));
         owner.setPhoneNumber("123456789");
 
+
         unit = new BookableUnit();
         unit.setName("Room A");
         unit.setMaxCapacity(4);
@@ -113,6 +114,10 @@ public class PropertyServiceIT {
         property = new Property();
         property.setOwner(owner);
         property.setPropertyType(type);
+
+        List<Property> propList = new ArrayList<>();
+        propList.add(property);
+        owner.setProperties(propList);
 
         propertyTypeRepository.save(type);
         userRepository.save(owner);
@@ -382,7 +387,7 @@ public class PropertyServiceIT {
 
         assertNotNull(properties);
         assertFalse(properties.isEmpty());
-        assertEquals(property.getId(), properties.get(1).id());
+        assertEquals(property.getId(), properties.get(0).id());
     }
 
     @Test
