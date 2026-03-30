@@ -59,39 +59,47 @@ public class PropertyController {
     }
 
     @PostMapping("/{pid}/add-unit")
-    public BookableUnitsResponseDTO addUnit(@PathVariable Long pid,
-                                            @RequestBody BookableUnitRequestDTO dto
+    public BookableUnitsResponseDTO addUnit(
+            @PathVariable Long pid,
+            @RequestBody BookableUnitRequestDTO dto
     ){
         return propertyService.addUnit(pid, dto);
     }
 
     @PostMapping("/{pid}/reviews")
-    public ReviewResponseDTO addReview(@RequestBody ReviewRequestDTO dto,
-                                       @PathVariable Long pid
+    public ReviewResponseDTO addReview(
+            @RequestBody ReviewRequestDTO dto,
+            @PathVariable Long pid
     ){
         return propertyService.addReview(dto,pid);
     }
 
     @GetMapping("/{pid}/reviews")
-    public List<ReviewResponseDTO> getReviews(@PathVariable Long pid){
+    public List<ReviewResponseDTO> getReviews(
+            @PathVariable Long pid
+    ){
         return propertyService.getReviews(pid);
     }
 
     @PostMapping("/{pid}/images")
-    public String uploadPropertyImage(@PathVariable Long pid,
-                                      @RequestParam("image") MultipartFile file
+    public String uploadPropertyImage(
+            @PathVariable Long pid,
+            @RequestParam("image") MultipartFile file
     ){
         return s3Service.uploadPropertyImage(pid, file);
     }
 
     @GetMapping("/{pid}/images")
-    public List<String> getPropertyImages(@PathVariable Long pid
+    public List<String> getPropertyImages(
+            @PathVariable Long pid
     ){
         return propertyService.getPropertyImages(pid);
     }
 
     @GetMapping("/{pid}/thumbnail")
-    public Map<String, String> getThumbnail(@PathVariable Long pid){
+    public Map<String, String> getThumbnail(
+            @PathVariable Long pid
+    ){
         String url = propertyService.getThumbnail(pid);
         return Map.of("url", url);
     }

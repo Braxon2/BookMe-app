@@ -3,16 +3,15 @@ package com.dusanbranovic.bookme.service;
 import com.dusanbranovic.bookme.dto.requests.AddonsRequestDTO;
 import com.dusanbranovic.bookme.dto.requests.BookingRequestDTO;
 import com.dusanbranovic.bookme.dto.requests.PeriodPriceRequestDTO;
+import com.dusanbranovic.bookme.dto.responses.BookableUnitCardDTO;
 import com.dusanbranovic.bookme.dto.responses.BookingResponseDTO;
 import com.dusanbranovic.bookme.dto.responses.PeriodPriceResponseDTO;
 import com.dusanbranovic.bookme.exceptions.EntityNotFoundException;
 import com.dusanbranovic.bookme.mappers.BookableUnitMapper;
 import com.dusanbranovic.bookme.mappers.PeriodPriceMapper;
-import com.dusanbranovic.bookme.models.BookableUnit;
-import com.dusanbranovic.bookme.models.Booking;
-import com.dusanbranovic.bookme.models.PeriodPrice;
-import com.dusanbranovic.bookme.models.User;
+import com.dusanbranovic.bookme.models.*;
 import com.dusanbranovic.bookme.repository.*;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -23,6 +22,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -101,6 +101,7 @@ class BookableUnitServiceTest {
 
         assertEquals(1, result.size());
     }
+
 
 
 

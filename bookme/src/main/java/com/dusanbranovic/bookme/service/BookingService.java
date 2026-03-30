@@ -54,22 +54,25 @@ public class BookingService {
             return new EntityNotFoundException("Unit with id " + unitId + " not found");
         });
 
-        List<Long> addonIds = bookingRequestDTO.addons().stream().map(AddonsRequestDTO::id).toList();
 
         List<Addon> addons = new ArrayList<>();
-        for (int i = 0; i < addonIds.size(); i++) {
-            int row = i;
-            Addon addon = addonRepository.findById(addonIds.get(i)).orElseThrow(() -> {
-                log.error("Addon not found");
-                throw new EntityNotFoundException("Addon with id " + addonIds.get(row) + " not found");
-            });
+        if(bookingRequestDTO.addons() != null) {
+            List<Long> addonIds = bookingRequestDTO.addons().stream().map(AddonsRequestDTO::id).toList();
+
+            for (int i = 0; i < addonIds.size(); i++) {
+                int row = i;
+                Addon addon = addonRepository.findById(addonIds.get(i)).orElseThrow(() -> {
+                    log.error("Addon not found");
+                    throw new EntityNotFoundException("Addon with id " + addonIds.get(row) + " not found");
+                });
 
 
-            if (!addon.getBookableUnit().getId().equals(unitId)) {
-                log.error("Addon not found in unit " + unitId);
-                throw new EntityNotFoundException("Addon with id " + addonIds.get(i) + " not found in unit");
+                if (!addon.getBookableUnit().getId().equals(unitId)) {
+                    log.error("Addon not found in unit " + unitId);
+                    throw new EntityNotFoundException("Addon with id " + addonIds.get(i) + " not found in unit");
+                }
+                addons.add(addon);
             }
-            addons.add(addon);
         }
 
 

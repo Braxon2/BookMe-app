@@ -26,7 +26,6 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -117,8 +116,7 @@ class PropertyControllerIntegrationTest {
         Mockito.when(s3Service.uploadPropertyImage(eq(1L), any())).thenReturn(mockUrl);
 
         mockMvc.perform(multipart("/api/properties/{pid}/images", 1L)
-                        .file(file)
-                        .with(csrf()))
+                        .file(file))
                 .andExpect(status().isOk())
                 .andExpect(content().string(mockUrl));
     }

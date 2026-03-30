@@ -4,6 +4,8 @@ import com.dusanbranovic.bookme.dto.requests.AddonsRequestDTO;
 import com.dusanbranovic.bookme.dto.requests.BookingRequestDTO;
 import com.dusanbranovic.bookme.dto.responses.BookingResponseDTO;
 import com.dusanbranovic.bookme.exceptions.EntityNotFoundException;
+import com.dusanbranovic.bookme.exceptions.InvalidDateRangeException;
+import com.dusanbranovic.bookme.exceptions.OverlappingBookingExcpetion;
 import com.dusanbranovic.bookme.models.BookableUnit;
 import com.dusanbranovic.bookme.models.Booking;
 import com.dusanbranovic.bookme.models.PeriodPrice;
@@ -67,7 +69,7 @@ class BookingServiceTest {
                 List.of()
         );
 
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(InvalidDateRangeException.class,
                 () -> bookingService.bookAUnit(1L, dto));
     }
 
@@ -87,7 +89,7 @@ class BookingServiceTest {
                 List.of()
         );
 
-        assertThrows(IllegalStateException.class,
+        assertThrows(OverlappingBookingExcpetion.class,
                 () -> bookingService.bookAUnit(1L, dto));
     }
 
