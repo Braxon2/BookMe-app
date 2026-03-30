@@ -37,11 +37,18 @@ public class Property {
 
 
     private String name;
-    private String description;
+
     private String country;
     private String city;
     private String address;
+
+    @Column(columnDefinition = "TEXT")
+    private String description;
+
+    @Column(columnDefinition = "TEXT")
     private String houseRules;
+
+    @Column(columnDefinition = "TEXT")
     private String importantInfo;
 
     public Property() {
