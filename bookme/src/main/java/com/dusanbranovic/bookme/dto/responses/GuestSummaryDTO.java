@@ -1,10 +1,7 @@
 package com.dusanbranovic.bookme.dto.responses;
 
-import com.dusanbranovic.bookme.models.UserType;
-
-public record UserDTO(
+public record GuestSummaryDTO(
         Long id,
-        UserType userType,
         String email,
         String firstName,
         String lastName,

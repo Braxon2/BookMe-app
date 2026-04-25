@@ -1,17 +1,16 @@
 package com.dusanbranovic.bookme.mappers;
 
-import com.dusanbranovic.bookme.dto.responses.UserDTO;
+import com.dusanbranovic.bookme.dto.responses.GuestSummaryDTO;
 import com.dusanbranovic.bookme.models.User;
 import org.springframework.stereotype.Component;
 
 @Component
 public class UserMapper {
 
-    public UserDTO toDTO(User user){
+    public GuestSummaryDTO toDTO(User user){
 
-        return new UserDTO(
+        return new GuestSummaryDTO(
                 user.getId(),
-                user.getRole(),
                 user.getEmail(),
                 user.getFirstName(),
                 user.getLastName(),
@@ -19,11 +18,10 @@ public class UserMapper {
 
     }
 
-    public User toEntity(UserDTO dto){
+    public User toEntity(GuestSummaryDTO dto){
 
         User user = new User();
         user.setId(dto.id());
-        user.setRole(dto.userType());
         user.setEmail(dto.email());
         user.setFirstName(dto.firstName());
         user.setLastName(dto.lastName());

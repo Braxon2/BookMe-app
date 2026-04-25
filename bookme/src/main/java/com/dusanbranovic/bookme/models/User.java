@@ -175,6 +175,22 @@ public class User implements UserDetails {
         this.reviews = reviews;
     }
 
+    public List<Booking> getBookings() {
+        return bookings;
+    }
+
+    public void setBookings(List<Booking> bookings) {
+        this.bookings = bookings;
+    }
+
+    public List<ContactPerson> getContacts() {
+        return contacts;
+    }
+
+    public void setContacts(List<ContactPerson> contacts) {
+        this.contacts = contacts;
+    }
+
     @Override
     public String toString() {
         return "User{" +

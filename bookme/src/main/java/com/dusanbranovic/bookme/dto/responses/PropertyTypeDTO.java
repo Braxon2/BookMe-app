@@ -1,7 +1,7 @@
-package com.dusanbranovic.bookme.dto.responses;
+    package com.dusanbranovic.bookme.dto.responses;
 
-public record PropertyTypeDTO(
-        Long id,
-        String name
-) {
-}
+    public record PropertyTypeDTO(
+            Long id,
+            String name
+    ) {
+    }

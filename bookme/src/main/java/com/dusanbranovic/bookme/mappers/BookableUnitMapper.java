@@ -14,7 +14,6 @@ public class BookableUnitMapper {
                 unit.getId(),
                 unit.getMaxCapacity(),
                 unit.getSquareMeters(),
-                unit.getTotalUnits(),
                 unit.getSingleBeds(),
                 unit.getDoubleBeds(),
                 unit.getMaxAdultCapacity(),
@@ -26,7 +25,6 @@ public class BookableUnitMapper {
         BookableUnit unit = new BookableUnit();
         unit.setId(dto.id());
         unit.setName(dto.name());
-        unit.setTotalUnits(dto.totalUnits());
         unit.setMaxCapacity(dto.maxCapacity());
         unit.setMaxKidsCapacity(dto.maxKidsCapacity());
         unit.setMaxAdultCapacity(dto.maxAdultCapacity());
@@ -42,7 +40,6 @@ public class BookableUnitMapper {
         BookableUnit unit = new BookableUnit();
         unit.setProperty(property);
         unit.setName(dto.name());
-        unit.setTotalUnits(dto.totalUnits());
         unit.setMaxCapacity(dto.maxCapacity());
         unit.setMaxKidsCapacity(dto.maxKidsCapacity());
         unit.setMaxAdultCapacity(dto.maxAdultCapacity());

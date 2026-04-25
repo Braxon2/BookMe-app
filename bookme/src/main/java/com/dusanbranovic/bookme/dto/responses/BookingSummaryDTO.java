@@ -5,10 +5,9 @@ import com.dusanbranovic.bookme.models.BookingStatus;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-public record BookingResponseDTO(
+public record BookingSummaryDTO(
         Long id,
         BookableUnitsResponseDTO bookableUnit,
-        GuestSummaryDTO guest,
         Double totalPrice,
         LocalDate createdAt,
         LocalDateTime checkIn,

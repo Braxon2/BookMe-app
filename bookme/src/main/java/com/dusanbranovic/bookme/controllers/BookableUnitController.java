@@ -37,6 +37,13 @@ public class BookableUnitController {
         this.bookingService = bookingService;
     }
 
+    @GetMapping("/{unit_id}")
+    public BookableUnitDetailedCardDTO getUnit(
+            @PathVariable Long unit_id
+    ){
+        return bookableUnitService.getUnit(unit_id);
+    }
+
     @PostMapping("/{unit_id}/add-price")
     public PeriodPriceResponseDTO addPeriodPrice(
             @PathVariable Long unit_id,

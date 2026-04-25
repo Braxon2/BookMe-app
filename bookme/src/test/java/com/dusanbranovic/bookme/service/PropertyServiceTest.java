@@ -216,7 +216,7 @@ class PropertyServiceTest {
         SecurityContextHolder.setContext(context);
 
         when(propertyRepository.findById(1L)).thenReturn(Optional.of(property));
-        when(userMapper.toDTO(user)).thenReturn(mock(UserDTO.class));
+        when(userMapper.toDTO(user)).thenReturn(mock(GuestSummaryDTO.class));
         when(propertyMapper.toDTO(property)).thenReturn(mock(PropertyDTO.class));
 
         ReviewResponseDTO result = propertyService.addReview(dto, 1L);
@@ -233,7 +233,7 @@ class PropertyServiceTest {
         property.setReviews(List.of(review));
 
         when(propertyRepository.findById(1L)).thenReturn(Optional.of(property));
-        when(userMapper.toDTO(any())).thenReturn(mock(UserDTO.class));
+        when(userMapper.toDTO(any())).thenReturn(mock(GuestSummaryDTO.class));
         when(propertyMapper.toDTO(any())).thenReturn(mock(PropertyDTO.class));
 
         List<ReviewResponseDTO> result = propertyService.getReviews(1L);

@@ -4,7 +4,6 @@ public record BookableUnitsResponseDTO(
         Long id,
         int maxCapacity,
         double squareMeters,
-        int totalUnits,
         int singleBeds,
         int doubleBeds,
         int maxAdultCapacity,

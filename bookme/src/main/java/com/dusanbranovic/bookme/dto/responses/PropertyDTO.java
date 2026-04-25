@@ -5,7 +5,6 @@ import java.util.List;
 
 public record PropertyDTO(
         Long id,
-        UserDTO ownerDTO,
         PropertyTypeDTO propertyTypeDTO,
         String name,
         String description,

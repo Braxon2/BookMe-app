@@ -2,10 +2,7 @@ package com.dusanbranovic.bookme.service;
 
 import com.dusanbranovic.bookme.dto.requests.AddFacilitiesRequestDTO;
 import com.dusanbranovic.bookme.dto.requests.PeriodPriceRequestDTO;
-import com.dusanbranovic.bookme.dto.responses.BookableUnitCardDTO;
-import com.dusanbranovic.bookme.dto.responses.BookableUnitFacilitiesResponseDTO;
-import com.dusanbranovic.bookme.dto.responses.PeriodPriceResponseDTO;
-import com.dusanbranovic.bookme.dto.responses.UnitFascilityResponseDTO;
+import com.dusanbranovic.bookme.dto.responses.*;
 import com.dusanbranovic.bookme.exceptions.EntityNotFoundException;
 import com.dusanbranovic.bookme.mappers.BookableUnitMapper;
 import com.dusanbranovic.bookme.mappers.PeriodPriceMapper;
@@ -224,5 +221,71 @@ public class BookableUnitService {
         );
 
         return new BookableUnitFacilitiesResponseDTO(unitId, allFacilitiesDto);
+    }
+
+    public BookableUnitDetailedCardDTO getUnit(Long unitId) {
+
+        BookableUnit unit = bookableUnitRepository.findById(unitId)
+                .orElseThrow(() -> new EntityNotFoundException("Unit with ID " + unitId + " not found"));
+
+        Property property = unit.getProperty();
+
+        PropertyTypeDTO propertyTypeDTO = new PropertyTypeDTO(property.getPropertyType().getId(), property.getPropertyType().getName());
+
+        List<FascilityResponseDTO> facilityDTO = property.getPropertyFacilities().stream().
+                map(fac ->
+                        new FascilityResponseDTO(fac.getFacility().getId(),fac.getFacility().getName()))
+                .toList();;
+
+        PropertyDTO propertyDTO = new PropertyDTO(
+                property.getId(),
+                propertyTypeDTO,
+                property.getName(),
+                property.getDescription(),
+                property.getCountry(),
+                property.getCity(),
+                property.getAddress(),
+                property.getHouseRules(),
+                property.getImportantInfo(),
+                facilityDTO);
+
+        List<PeriodPriceDTO> periodPriceDTO = unit.getPeriodPriceList()
+                .stream().map(price ->
+                        new PeriodPriceDTO(price.getId(),price.getPricePerNight(),price.getStartDate(),price.getEndDate(),price.getSeason()))
+                .toList();
+
+        List<AddonResponseDTO> addonDTO = unit.getAddonList()
+                .stream().map(addon ->
+                        new AddonResponseDTO(addon.getId(), addon.getName(), addon.isPerNight()) )
+                .toList();
+
+        List<UnitFascilityResponseDTO> unitFacilityDTO = unit.getUnitFascilityMappings()
+                .stream().map(ufac ->
+                        new UnitFascilityResponseDTO(ufac.getUnitFascillity().getId(),ufac.getUnitFascillity().getName()))
+                .toList();
+
+        List<UnitImageDTO> unitImageDTO = unit.getImages()
+                .stream().map(image ->
+                        new UnitImageDTO(image.getId(), image.getUrl(), image.getPrimary(), image.getSortOrder()))
+                .toList();
+
+
+        log.info("Unit fetched successfully");
+
+        return new BookableUnitDetailedCardDTO(
+                unit.getId(),
+                propertyDTO,
+                periodPriceDTO,
+                addonDTO,
+                unitFacilityDTO,
+                unitImageDTO,
+                unit.getMaxCapacity(),
+                unit.getSquareMeters(),
+                unit.getSingleBeds(),
+                unit.getDoubleBeds(),
+                unit.getMaxAdultCapacity(),
+                unit.getMaxKidsCapacity(),
+                unit.getName()
+        );
     }
 }

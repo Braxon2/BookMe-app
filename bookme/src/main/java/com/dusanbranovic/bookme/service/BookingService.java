@@ -1,19 +1,22 @@
 package com.dusanbranovic.bookme.service;
 
 import com.dusanbranovic.bookme.dto.requests.AddonsRequestDTO;
-import com.dusanbranovic.bookme.dto.responses.AddonResponseDTO;
 import com.dusanbranovic.bookme.dto.responses.BookableUnitsResponseDTO;
 import com.dusanbranovic.bookme.dto.requests.BookingRequestDTO;
 import com.dusanbranovic.bookme.dto.responses.BookingResponseDTO;
-import com.dusanbranovic.bookme.dto.responses.UserDTO;
+import com.dusanbranovic.bookme.dto.responses.BookingSummaryDTO;
+import com.dusanbranovic.bookme.dto.responses.GuestSummaryDTO;
 import com.dusanbranovic.bookme.exceptions.*;
+import com.dusanbranovic.bookme.mappers.BookableUnitMapper;
 import com.dusanbranovic.bookme.models.*;
 import com.dusanbranovic.bookme.repository.AddonRepository;
 import com.dusanbranovic.bookme.repository.BookableUnitRepository;
 import com.dusanbranovic.bookme.repository.BookingRepository;
 import com.dusanbranovic.bookme.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -22,8 +25,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class BookingService {
@@ -33,6 +34,8 @@ public class BookingService {
     private final BookableUnitRepository bookableUnitRepository;
     private final AddonRepository addonRepository;
 
+    private final BookableUnitMapper bookableUnitMapper;
+
     private static final Logger log = LoggerFactory.getLogger(BookingService.class);
 
 
@@ -40,12 +43,14 @@ public class BookingService {
             BookingRepository bookingRepository,
             UserRepository userRepository,
             BookableUnitRepository bookableUnitRepository,
-            AddonRepository addonRepository
+            AddonRepository addonRepository,
+            BookableUnitMapper bookableUnitMapper
     ) {
         this.bookingRepository = bookingRepository;
         this.userRepository = userRepository;
         this.bookableUnitRepository = bookableUnitRepository;
         this.addonRepository = addonRepository;
+        this.bookableUnitMapper = bookableUnitMapper;
     }
 
     public BookingResponseDTO bookAUnit(Long unitId, BookingRequestDTO bookingRequestDTO) {
@@ -123,14 +128,13 @@ public class BookingService {
 
         log.info("Booking created successfully");
 
-        bookingRepository.save(booking);
+        Booking savedBooking = bookingRepository.save(booking);
 
 
         BookableUnitsResponseDTO unitDTO = new BookableUnitsResponseDTO(
                 unit.getId(),
                 unit.getMaxCapacity(),
                 unit.getSquareMeters(),
-                unit.getTotalUnits(),
                 unit.getSingleBeds(),
                 unit.getDoubleBeds(),
                 unit.getMaxAdultCapacity(),
@@ -138,9 +142,8 @@ public class BookingService {
                 unit.getName()
         );
 
-        UserDTO guestDTO = new UserDTO(
+        GuestSummaryDTO guestDTO = new GuestSummaryDTO(
                 guest.getId(),
-                guest.getRole(),
                 guest.getEmail(),
                 guest.getFirstName(),
                 guest.getLastName(),
@@ -148,6 +151,7 @@ public class BookingService {
         );
 
         return new BookingResponseDTO(
+                savedBooking.getId(),
                 unitDTO,
                 guestDTO,
                 totalPrice,
@@ -157,6 +161,7 @@ public class BookingService {
                 BookingStatus.CONFIRMED
         );
     }
+
 
     private double calculatePrice(
             LocalDate start,
@@ -246,5 +251,45 @@ public class BookingService {
         }
 
         return totalPrice;
+    }
+
+    @Transactional
+    public BookingSummaryDTO cancelBooking(Long bookingID) {
+        Booking bookingToCancel = bookingRepository.findById(bookingID).orElseThrow(() ->{
+            log.error("Booking not found");
+            return new EntityNotFoundException("Booking with " + bookingID + " not found");
+        });
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = (User) auth.getPrincipal();
+
+        if (!bookingToCancel.getGuest().getId().equals(currentUser.getId())) {
+            log.warn("User {} attempted to cancel booking {} owned by user {}",
+                    currentUser.getId(), bookingID, bookingToCancel.getGuest().getId());
+            throw new AccessDeniedException("You do not have permission to cancel this booking.");
+        }
+
+        if (bookingToCancel.getStatus() == BookingStatus.CANCELLED) {
+            log.warn("User {} attempted to cancel booking {} which is already cancelled", currentUser.getId(), bookingID);
+            throw new InvalidBookingStateException("Booking is already cancelled.");
+        }
+        if (bookingToCancel.getStatus() == BookingStatus.COMPLETED) {
+            log.warn("User {} attempted to cancel booking {} which is already completed", currentUser.getId(), bookingID);
+            throw new InvalidBookingStateException("Cannot cancel a completed booking.");
+        }
+
+        bookingToCancel.setStatus(BookingStatus.CANCELLED);
+        Booking savedBooking = bookingRepository.save(bookingToCancel);
+
+        log.info("Booking {} successfully cancelled by user {}", bookingID, currentUser.getId());
+
+        return new BookingSummaryDTO(
+                savedBooking.getId(),
+                bookableUnitMapper.toDTO(bookingToCancel.getBookableUnit()),
+                bookingToCancel.getTotalPrice(),
+                bookingToCancel.getCreatedAt(),
+                bookingToCancel.getCheckIn(),
+                bookingToCancel.getCheckOut(),
+                bookingToCancel.getStatus());
     }
 }

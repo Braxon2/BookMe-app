@@ -32,7 +32,6 @@ public class PropertyMapper {
                 .map(fascilityMapper::toDTO)
                 .collect(Collectors.toList());
         return new PropertyDTO(property.getId(),
-                userMapper.toDTO(property.getOwner()),
                 propertyTypeMapper.toDTO(property.getPropertyType()),
                 property.getName(),
                 property.getDescription(),

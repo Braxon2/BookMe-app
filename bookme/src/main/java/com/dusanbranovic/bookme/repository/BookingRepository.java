@@ -26,4 +26,9 @@ AND :end > b.checkIn
     );
 
 
+    @Query("""
+SELECT b FROM Booking  b
+WHERE b.guest.id = :userId
+""")
+    List<Booking> findAllByGuestIdWithUnit(@Param("userId") Long userId);
 }

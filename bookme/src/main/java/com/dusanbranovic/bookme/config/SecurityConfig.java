@@ -73,6 +73,10 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/addons/*/add-price").hasAnyAuthority("ADMIN","OWNER")
 
                         .requestMatchers(HttpMethod.GET, "/api/users/*/properties").hasAnyAuthority("OWNER")
+                        .requestMatchers(HttpMethod.GET, "/api/users/*/bookings").hasAnyAuthority("USER")
+                        .requestMatchers(HttpMethod.GET, "/api/users/*").hasAnyAuthority("USER")
+
+                        .requestMatchers(HttpMethod.PATCH, "/api/bookings/*").hasAnyAuthority("USER")
 
                 )
 

@@ -6,7 +6,7 @@ public record ReviewResponseDTO(
         Long id,
         int rating,
         String text,
-        UserDTO reviewer,
+        GuestSummaryDTO reviewer,
         PropertyDTO property,
         LocalDateTime createdAt
 ) {

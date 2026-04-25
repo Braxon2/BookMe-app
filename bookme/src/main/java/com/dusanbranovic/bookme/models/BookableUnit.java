@@ -21,7 +21,7 @@ public class BookableUnit {
     private List<PeriodPrice> periodPriceList = new ArrayList<>();
 
     @OneToMany(mappedBy = "bookableUnit", cascade = CascadeType.ALL)
-    private List<Addon> addonList;
+    private List<Addon> addonList = new ArrayList<>();
 
     @OneToMany(mappedBy = "bookableUnit", cascade = CascadeType.ALL)
     private List<Booking> bookings = new ArrayList<>();
