@@ -12,24 +12,16 @@ public class Addon {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "unit_id")
-    private BookableUnit bookableUnit;
-
-    @OneToMany(mappedBy = "addon", cascade = CascadeType.ALL)
-    private List<PeriodPriceAddon> periodPriceAddonList = new ArrayList<>();
-
     private String name;
 
-    private boolean perNight;
+    @OneToMany(mappedBy = "addon", cascade = CascadeType.ALL)
+    private List<AddonMapping> addonMappings = new ArrayList<>();
 
     public Addon() {
     }
 
-    public Addon(BookableUnit bookableUnit, String name, boolean perNight) {
-        this.bookableUnit = bookableUnit;
+    public Addon(String name) {
         this.name = name;
-        this.perNight = perNight;
     }
 
     public Long getId() {
@@ -40,22 +32,6 @@ public class Addon {
         this.id = id;
     }
 
-    public BookableUnit getBookableUnit() {
-        return bookableUnit;
-    }
-
-    public void setBookableUnit(BookableUnit bookableUnit) {
-        this.bookableUnit = bookableUnit;
-    }
-
-    public List<PeriodPriceAddon> getPeriodPriceAddonList() {
-        return periodPriceAddonList;
-    }
-
-    public void setPeriodPriceAddonList(List<PeriodPriceAddon> periodPriceAddonList) {
-        this.periodPriceAddonList = periodPriceAddonList;
-    }
-
     public String getName() {
         return name;
     }
@@ -64,11 +40,11 @@ public class Addon {
         this.name = name;
     }
 
-    public boolean isPerNight() {
-        return perNight;
+    public List<AddonMapping> getAddonMappings() {
+        return addonMappings;
     }
 
-    public void setPerNight(boolean perNight) {
-        this.perNight = perNight;
+    public void setAddonMappings(List<AddonMapping> addonMappings) {
+        this.addonMappings = addonMappings;
     }
 }

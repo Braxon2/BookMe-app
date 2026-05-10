@@ -13,8 +13,8 @@ public class PeriodPriceAddon {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "addon_id")
-    private Addon addon;
+    @JoinColumn(name = "addon_mapping_id")
+    private AddonMapping addonMapping;
 
     private double price;
 
@@ -24,8 +24,8 @@ public class PeriodPriceAddon {
     public PeriodPriceAddon() {
     }
 
-    public PeriodPriceAddon(Addon addon, double price, LocalDate startDate, LocalDate endDate) {
-        this.addon = addon;
+    public PeriodPriceAddon(AddonMapping addonMapping, double price, LocalDate startDate, LocalDate endDate) {
+        this.addonMapping = addonMapping;
         this.price = price;
         this.startDate = startDate;
         this.endDate = endDate;
@@ -39,12 +39,12 @@ public class PeriodPriceAddon {
         this.id = id;
     }
 
-    public Addon getAddon() {
-        return addon;
+    public AddonMapping getAddonMapping() {
+        return addonMapping;
     }
 
-    public void setAddon(Addon addon) {
-        this.addon = addon;
+    public void setAddonMapping(AddonMapping addonMapping) {
+        this.addonMapping = addonMapping;
     }
 
     public double getPrice() {

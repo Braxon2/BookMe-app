@@ -22,6 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.toList;
+
 @Service
 public class BookableUnitService {
 
@@ -86,7 +88,7 @@ public class BookableUnitService {
         return unit.getPeriodPriceList().
                 stream().
                 map(periodPriceMapper::toDTO).
-                collect(Collectors.toList()
+                collect(toList()
                 );
     }
 
@@ -180,7 +182,6 @@ public class BookableUnitService {
             AddFacilitiesRequestDTO dto
     ) {
 
-
         BookableUnit unit = bookableUnitRepository.findById(unitId).orElseThrow(() ->{
             log.error("Unit with id {} not found", unitId);
             return new EntityNotFoundException("Unit with id " + unitId + " not found");
@@ -202,7 +203,6 @@ public class BookableUnitService {
 
 
         List<UnitFascilityMapping> newMappings = unitFascillityList.stream()
-                .filter(uf -> !existingFacilityIds.contains(uf.getId()))
                 .map(uf -> new UnitFascilityMapping(unit, uf))
                 .toList();
 
@@ -235,7 +235,7 @@ public class BookableUnitService {
         List<FascilityResponseDTO> facilityDTO = property.getPropertyFacilities().stream().
                 map(fac ->
                         new FascilityResponseDTO(fac.getFacility().getId(),fac.getFacility().getName()))
-                .toList();;
+                .toList();
 
         PropertyDTO propertyDTO = new PropertyDTO(
                 property.getId(),
@@ -254,9 +254,9 @@ public class BookableUnitService {
                         new PeriodPriceDTO(price.getId(),price.getPricePerNight(),price.getStartDate(),price.getEndDate(),price.getSeason()))
                 .toList();
 
-        List<AddonResponseDTO> addonDTO = unit.getAddonList()
+        List<AddonResponseDTO> addonDTO = unit.getAddonMappings()
                 .stream().map(addon ->
-                        new AddonResponseDTO(addon.getId(), addon.getName(), addon.isPerNight()) )
+                        new AddonResponseDTO(addon.getId(), addon.getAddon().getName()))
                 .toList();
 
         List<UnitFascilityResponseDTO> unitFacilityDTO = unit.getUnitFascilityMappings()

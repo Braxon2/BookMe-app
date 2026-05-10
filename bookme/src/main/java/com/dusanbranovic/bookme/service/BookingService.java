@@ -9,10 +9,7 @@ import com.dusanbranovic.bookme.dto.responses.GuestSummaryDTO;
 import com.dusanbranovic.bookme.exceptions.*;
 import com.dusanbranovic.bookme.mappers.BookableUnitMapper;
 import com.dusanbranovic.bookme.models.*;
-import com.dusanbranovic.bookme.repository.AddonRepository;
-import com.dusanbranovic.bookme.repository.BookableUnitRepository;
-import com.dusanbranovic.bookme.repository.BookingRepository;
-import com.dusanbranovic.bookme.repository.UserRepository;
+import com.dusanbranovic.bookme.repository.*;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +30,7 @@ public class BookingService {
     private final UserRepository userRepository;
     private final BookableUnitRepository bookableUnitRepository;
     private final AddonRepository addonRepository;
+    private final AddonMappingRepository addonMappingRepository;
 
     private final BookableUnitMapper bookableUnitMapper;
 
@@ -44,12 +42,14 @@ public class BookingService {
             UserRepository userRepository,
             BookableUnitRepository bookableUnitRepository,
             AddonRepository addonRepository,
+            AddonMappingRepository addonMappingRepository,
             BookableUnitMapper bookableUnitMapper
     ) {
         this.bookingRepository = bookingRepository;
         this.userRepository = userRepository;
         this.bookableUnitRepository = bookableUnitRepository;
         this.addonRepository = addonRepository;
+        this.addonMappingRepository = addonMappingRepository;
         this.bookableUnitMapper = bookableUnitMapper;
     }
 
@@ -60,23 +60,26 @@ public class BookingService {
         });
 
 
-        List<Addon> addons = new ArrayList<>();
+        List<AddonMapping> addonMappings = new ArrayList<>();
+
         if(bookingRequestDTO.addons() != null) {
             List<Long> addonIds = bookingRequestDTO.addons().stream().map(AddonsRequestDTO::id).toList();
 
             for (int i = 0; i < addonIds.size(); i++) {
                 int row = i;
-                Addon addon = addonRepository.findById(addonIds.get(i)).orElseThrow(() -> {
+
+                Long addonId = addonIds.get(i);
+                Addon addon = addonRepository.findById(addonId).orElseThrow(() -> {
                     log.error("Addon not found");
                     throw new EntityNotFoundException("Addon with id " + addonIds.get(row) + " not found");
                 });
 
+                AddonMapping addonMapping = addonMappingRepository.findByAddonAndUnitID(unitId,addonId).orElseThrow(() ->{
+                    log.error("Addon not found in unit");
+                    return new EntityNotFoundException("Addon with id " + addonId + " not found in unit with id " + unitId);
+                });
 
-                if (!addon.getBookableUnit().getId().equals(unitId)) {
-                    log.error("Addon not found in unit " + unitId);
-                    throw new EntityNotFoundException("Addon with id " + addonIds.get(i) + " not found in unit");
-                }
-                addons.add(addon);
+                addonMappings.add(addonMapping);
             }
         }
 
@@ -104,8 +107,8 @@ public class BookingService {
         double totalAddonPrice = 0;
         double totalPrice = calculatePrice(start, end, prices);
 
-        for (int i = 0; i < addons.size(); i++) {
-            totalAddonPrice += calculateAddonPrice(start, end, addons.get(i));
+        for (int i = 0; i < addonMappings.size(); i++) {
+            totalAddonPrice += calculateAddonPrice(start, end, addonMappings.get(i));
         }
 
         totalPrice += totalAddonPrice;
@@ -126,21 +129,25 @@ public class BookingService {
                 BookingStatus.CONFIRMED
         );
 
+        for (AddonMapping mapping : addonMappings) {
+            double historicalPriceForThisAddon = calculateAddonPrice(start, end, mapping);
+
+            BookingAddonItem item = new BookingAddonItem(
+                    booking,
+                    mapping.getAddon(),
+                    historicalPriceForThisAddon,
+                    mapping.isPerNight()
+            );
+
+            booking.addAddonItem(item);
+        }
+
         log.info("Booking created successfully");
 
         Booking savedBooking = bookingRepository.save(booking);
 
 
-        BookableUnitsResponseDTO unitDTO = new BookableUnitsResponseDTO(
-                unit.getId(),
-                unit.getMaxCapacity(),
-                unit.getSquareMeters(),
-                unit.getSingleBeds(),
-                unit.getDoubleBeds(),
-                unit.getMaxAdultCapacity(),
-                unit.getMaxKidsCapacity(),
-                unit.getName()
-        );
+        BookableUnitsResponseDTO unitDTO = bookableUnitMapper.toDTO(unit);
 
         GuestSummaryDTO guestDTO = new GuestSummaryDTO(
                 guest.getId(),
@@ -195,11 +202,11 @@ public class BookingService {
     private double calculateAddonPrice(
             LocalDate start,
             LocalDate end,
-            Addon addon
+            AddonMapping addonMapping
     ) {
-        List<PeriodPriceAddon> prices = addon.getPeriodPriceAddonList();
+        List<PeriodPriceAddon> prices = addonMapping.getPeriodPriceAddons();
 
-        if (addon.isPerNight()) {
+        if (addonMapping.isPerNight()) {
             return calculatePerNight(start, end, prices);
         } else {
             return calculateOnce(start, prices);
@@ -215,7 +222,7 @@ public class BookingService {
                         !start.isBefore(p.getStartDate()) &&
                                 !start.isAfter(p.getEndDate())
                 )
-                .findFirst()
+                .reduce((firsy, second) -> second)
                 .orElseThrow(() -> {
                     log.warn("No addon price defined");
                     return new EntityNotFoundException("No addon price defined");

@@ -132,6 +132,8 @@ class BookingServiceTest {
         SecurityContextHolder.setContext(context);
 
         when(bookableUnitRepository.findById(1L)).thenReturn(Optional.of(unit));
+        when(bookingRepository.save(any(Booking.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
         when(bookingRepository.countOverlappingBookings(any(), any(), any()))
                 .thenReturn(0L);
 

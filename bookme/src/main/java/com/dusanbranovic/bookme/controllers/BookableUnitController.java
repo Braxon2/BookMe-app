@@ -1,11 +1,8 @@
 package com.dusanbranovic.bookme.controllers;
 
 
-import com.dusanbranovic.bookme.dto.requests.AddFacilitiesRequestDTO;
-import com.dusanbranovic.bookme.dto.requests.AddonRequestDTO;
-import com.dusanbranovic.bookme.dto.requests.BookingRequestDTO;
+import com.dusanbranovic.bookme.dto.requests.*;
 import com.dusanbranovic.bookme.dto.responses.*;
-import com.dusanbranovic.bookme.dto.requests.PeriodPriceRequestDTO;
 import com.dusanbranovic.bookme.service.AddonService;
 import com.dusanbranovic.bookme.service.BookableUnitService;
 import com.dusanbranovic.bookme.service.BookingService;
@@ -26,10 +23,11 @@ public class BookableUnitController {
 
     private final BookingService bookingService;
 
-    public BookableUnitController(BookableUnitService bookableUnitService,
-                                  AddonService addonService,
-                                  S3Service s3Service,
-                                  BookingService bookingService
+    public BookableUnitController(
+            BookableUnitService bookableUnitService,
+            AddonService addonService,
+            S3Service s3Service,
+            BookingService bookingService
     ) {
         this.bookableUnitService = bookableUnitService;
         this.addonService = addonService;
@@ -69,11 +67,29 @@ public class BookableUnitController {
     }
 
     @PostMapping("/{unitId}/addons")
-    public AddonResponseDTO addAddonToUnit(
+    public AddonToAddResponseDTO addAddonToUnit(
             @PathVariable Long unitId,
-            @RequestBody AddonRequestDTO dto
+            @RequestBody AddonToAddRequestDTO dto
     ){
         return addonService.addAddonToUnit(unitId,dto);
+    }
+
+    @PatchMapping("/{unitId}/addons/{addonId}/billing-type")
+    public boolean changeBillingType(
+            @PathVariable Long unitId,
+            @PathVariable Long addonId,
+            @RequestBody BillingTypeRequestDTO dto
+    ){
+        return addonService.changeBillingType(unitId,addonId,dto);
+    }
+
+    @PostMapping("/{unitId}/addons/{addonId}/add-price")
+    public AddonPeriodPriceResponseDTO addAddonPeriodPrice(
+            @RequestBody PeriodPriceAddonRequestDTO dto,
+            @PathVariable Long unitId,
+            @PathVariable Long addonId
+    ){
+        return addonService.addAddonPeriodPrice(unitId,addonId, dto);
     }
 
     @PostMapping("/{uid}/images")

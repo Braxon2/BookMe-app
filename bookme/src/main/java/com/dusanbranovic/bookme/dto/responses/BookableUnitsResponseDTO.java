@@ -1,5 +1,7 @@
 package com.dusanbranovic.bookme.dto.responses;
 
+import java.util.List;
+
 public record BookableUnitsResponseDTO(
         Long id,
         int maxCapacity,
@@ -8,6 +10,7 @@ public record BookableUnitsResponseDTO(
         int doubleBeds,
         int maxAdultCapacity,
         int maxKidsCapacity,
-        String name
+        String name,
+        List<UnitFascilityResponseDTO> unitFascilityResponseDTOS
 ) {
 }

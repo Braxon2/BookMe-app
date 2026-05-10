@@ -1,6 +1,7 @@
 package com.dusanbranovic.bookme.dto.requests;
 
-public record AddonRequestDTO(
+public record AddonToAddRequestDTO(
+        Long id,
         String name
 ) {
 }

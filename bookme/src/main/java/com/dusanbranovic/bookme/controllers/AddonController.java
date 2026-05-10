@@ -30,13 +30,4 @@ public class AddonController {
         return addonService.addAddon(dto);
     }
 
-    @PostMapping("/{aid}/add-price")
-    public AddonPeriodPriceResponseDTO addAddonPeriodPrice(
-            @RequestBody PeriodPriceAddonRequestDTO dto,
-            @PathVariable Long aid
-    ){
-        return addonService.addAddonPeriodPrice(aid, dto);
-    }
-
-
 }

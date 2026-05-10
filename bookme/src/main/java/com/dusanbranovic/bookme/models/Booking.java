@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 public class Booking {
@@ -20,6 +22,9 @@ public class Booking {
     @JoinColumn(name = "guest_id")
     private User guest;
 
+    @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<BookingAddonItem> addonItems = new ArrayList<>();
+
     private Double totalPrice;
     private LocalDate createdAt;
     private LocalDateTime checkIn;
@@ -32,12 +37,12 @@ public class Booking {
 
     public Booking(
             BookableUnit bookableUnit,
-                   User guest,
-                   Double totalPrice,
-                   LocalDate createdAt,
-                   LocalDateTime checkIn,
-                   LocalDateTime checkOut,
-                   BookingStatus status
+            User guest,
+            Double totalPrice,
+            LocalDate createdAt,
+            LocalDateTime checkIn,
+            LocalDateTime checkOut,
+            BookingStatus status
     ) {
         this.bookableUnit = bookableUnit;
         this.guest = guest;
@@ -110,5 +115,18 @@ public class Booking {
 
     public void setStatus(BookingStatus status) {
         this.status = status;
+    }
+
+    public void addAddonItem(BookingAddonItem item) {
+        addonItems.add(item);
+        item.setBooking(this);
+    }
+
+    public List<BookingAddonItem> getAddonItems() {
+        return addonItems;
+    }
+
+    public void setAddonItems(List<BookingAddonItem> addonItems) {
+        this.addonItems = addonItems;
     }
 }

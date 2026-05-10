@@ -21,7 +21,7 @@ public class BookableUnit {
     private List<PeriodPrice> periodPriceList = new ArrayList<>();
 
     @OneToMany(mappedBy = "bookableUnit", cascade = CascadeType.ALL)
-    private List<Addon> addonList = new ArrayList<>();
+    private List<AddonMapping> addonMappings = new ArrayList<>();
 
     @OneToMany(mappedBy = "bookableUnit", cascade = CascadeType.ALL)
     private List<Booking> bookings = new ArrayList<>();
@@ -91,12 +91,12 @@ public class BookableUnit {
         this.periodPriceList = periodPriceList;
     }
 
-    public List<Addon> getAddonList() {
-        return addonList;
+    public List<AddonMapping> getAddonMappings() {
+        return addonMappings;
     }
 
-    public void setAddonList(List<Addon> addonList) {
-        this.addonList = addonList;
+    public void setAddonMappings(List<AddonMapping> addonMappings) {
+        this.addonMappings = addonMappings;
     }
 
     public int getMaxCapacity() {

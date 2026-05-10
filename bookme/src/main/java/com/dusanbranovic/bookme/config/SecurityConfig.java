@@ -53,8 +53,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/properties/*/reviews").hasAnyAuthority("USER")
 
                         .requestMatchers(HttpMethod.GET, "/api/units/search").hasAnyAuthority("ADMIN","OWNER","USER")
+                        .requestMatchers(HttpMethod.PATCH, "/api/units/*/addons/*/billing-type").hasAnyAuthority("OWNER")
                         .requestMatchers(HttpMethod.GET, "/api/units/**").hasAnyAuthority("ADMIN","OWNER","USER")
-                        .requestMatchers(HttpMethod.POST, "/api/units/*/add-price").hasAnyAuthority("ADMIN","OWNER")
+                        .requestMatchers(HttpMethod.POST, "/api/units/*/addons/*/add-price").hasAnyAuthority("ADMIN","OWNER")
                         .requestMatchers(HttpMethod.POST, "/api/units/*/add-unit-facilities").hasAnyAuthority("ADMIN","OWNER")
                         .requestMatchers(HttpMethod.POST, "/api/units/*/images").hasAnyAuthority("ADMIN","OWNER")
                         .requestMatchers(HttpMethod.POST, "/api/units/*/addons").hasAnyAuthority("ADMIN","OWNER")
@@ -70,7 +71,6 @@ public class SecurityConfig {
 
                         .requestMatchers(HttpMethod.GET, "/api/addons").hasAnyAuthority("ADMIN","OWNER","USER")
                         .requestMatchers(HttpMethod.POST, "/api/addons").hasAnyAuthority("ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/api/addons/*/add-price").hasAnyAuthority("ADMIN","OWNER")
 
                         .requestMatchers(HttpMethod.GET, "/api/users/*/properties").hasAnyAuthority("OWNER")
                         .requestMatchers(HttpMethod.GET, "/api/users/*/bookings").hasAnyAuthority("USER")

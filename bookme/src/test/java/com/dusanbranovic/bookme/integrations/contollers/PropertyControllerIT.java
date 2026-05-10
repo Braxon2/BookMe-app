@@ -27,6 +27,7 @@ import java.util.List;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(PropertyController.class)
@@ -55,9 +56,9 @@ class PropertyControllerIntegrationTest {
     @BeforeEach
     void setUp() {
         mockPropertyDTO = new PropertyDTO(
-                1L, null, null, "Test Villa", "A beautiful villa",
-                "Serbia", "Belgrade", "Test Address 123",
-                "No smoking", "Check-in at 14:00", List.of()
+                1L, null, "Test Villa", null , "Serbia",
+                "Belgrade", "Belgrade", "Test Address 123",
+                "No smoking", List.of()
         );
     }
 
@@ -67,7 +68,7 @@ class PropertyControllerIntegrationTest {
         Mockito.when(propertyService.getAll()).thenReturn(List.of(mockPropertyDTO));
 
         mockMvc.perform(get("/api/properties")
-                        .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON)).andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].name").value("Test Villa"))
                 .andExpect(jsonPath("$[0].city").value("Belgrade"));
@@ -100,7 +101,7 @@ class PropertyControllerIntegrationTest {
         Mockito.when(propertyService.getProperty(1L)).thenReturn(mockPropertyDTO);
 
         mockMvc.perform(get("/api/properties/{pid}", 1L)
-                        .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON)).andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("Test Villa"));
     }
